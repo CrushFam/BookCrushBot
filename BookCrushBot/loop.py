@@ -1,5 +1,6 @@
 import sys
 import time
+import threading
 import BookCrushBot
 
 
@@ -65,7 +66,8 @@ class Loop:
             except KeyError:
                 BookCrushBot.request_async(self.url+"/sendMessage", data)
             else:
-                session.respond_message(message)
+                thread = threading.Thread(target=session.respond_message, args=(message,))
+                thread.start()
 
     def respond_query(self, query):
 
@@ -75,7 +77,8 @@ class Loop:
         except KeyError:
             BookCrushBot.log(f"Orphan query from {query['from']['username']}")
         else:
-            session.respond_query(query)
+            thread = threading.Thread(target=session.respond_query, args=(query,))
+            thread.start()
 
     def run(self):
 
