@@ -1,1 +1,1 @@
-web : python3 -m BookCrushBot
+web:python3 -m BookCrushBot
