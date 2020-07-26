@@ -9,7 +9,7 @@ from .roulette_session import RouletteSession
 
 config = json.load(open("config.json"))
 
-DB_CONNECTION = sqlite3.connect(config["database"])
+DB_CONNECTION = sqlite3.connect(config["database"], check_same_thread=False)
 DB_CURSOR = DB_CONNECTION.cursor()
 
 filename = config.get("file", None)
@@ -22,6 +22,27 @@ BOTM = config["botm"]
 BOTM_LIMIT = config["botm_limit"]
 ROULETTE = config["roulette"]
 URL = f"https://api.telegram.org/bot{config['token']}"
-ESCAPE_TABLE = {ord(i): f"\{i}" for i in ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+',
-                                    '-', '=', '|', '{', '}', '.', '!']}
+ESCAPE_TABLE = {
+    ord(i): f"\{i}"
+    for i in [
+        "_",
+        "*",
+        "[",
+        "]",
+        "(",
+        ")",
+        "~",
+        "`",
+        ">",
+        "#",
+        "+",
+        "-",
+        "=",
+        "|",
+        "{",
+        "}",
+        ".",
+        "!",
+    ]
+}
 del config, filename

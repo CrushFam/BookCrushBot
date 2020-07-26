@@ -3,7 +3,6 @@ from .session import Session
 
 
 class BOTMSession(Session):
-
     def __init__(self, chat, user, time_limit=300):
         Session.__init__(self, chat, user, time_limit)
         self.base_message_id = None
@@ -19,13 +18,17 @@ class BOTMSession(Session):
         else:
             message = "Sorry, your session expired. Use /botm to start a new session."
 
-        data = {"chat_id": self.chat_id,
-                "text": message,
-                "message_id": self.base_message_id}
+        data = {
+            "chat_id": self.chat_id,
+            "text": message,
+            "message_id": self.base_message_id,
+        }
         try:
             BookCrushBot.request_async(self.url + "/editMessageText", data)
         except AssertionError:
-            return f"Failed to expire session of {self.base_message['from']['username']}"
+            return (
+                f"Failed to expire session of {self.base_message['from']['username']}"
+            )
 
     def get_welcome_message(self):
 
@@ -38,23 +41,32 @@ class BOTMSession(Session):
             buttons = [("Suggest A Book", "botm_suggest")]
         else:
             text += "You have suggested the following books :\n"
-            text += "\n".join((f"  {i+1}\. _{BookCrushBot.escape(name)}_" for (i, name) in books))
+            text += "\n".join(
+                (f"  {i+1}\. _{BookCrushBot.escape(name)}_" for (i, name) in books)
+            )
             text += "\n"
 
             if ln < BookCrushBot.BOTM_LIMIT:
                 more = BookCrushBot.BOTM_LIMIT - ln
                 text += f"{more} more book{'s' * (more != 1)} can be added \!"
-                buttons = [("Suggest A Book", "botm_suggest"), ("Remove Suggested", "botm_remove")]
+                buttons = [
+                    ("Suggest A Book", "botm_suggest"),
+                    ("Remove Suggested", "botm_remove"),
+                ]
             else:
-                text += "To add more books, you need to remove the suggested ones \.\.\."
+                text += (
+                    "To add more books, you need to remove the suggested ones \.\.\."
+                )
                 buttons = [("Remove Suggested", "botm_remove")]
 
         keyboard_markup = BookCrushBot.get_buttons_markup([buttons])
 
-        data = {"chat_id": self.chat_id,
-                "text": text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         return data
 
@@ -65,9 +77,9 @@ class BOTMSession(Session):
 
         if book:
             name = BookCrushBot.escape(book["name"])
-            author = BookCrushBot.escape(book["author"])
+            authors = BookCrushBot.escape(book["authors"])
 
-            message_text = f"ISBN : {book['isbn']}\n*{name}* by _{author}_"
+            message_text = f"ISBN : {book['isbn']}\n*{name}* by _{authors}_"
             buttons.insert(0, [("Yes", "botm_accept_0")])
             self.books = [book]
 
@@ -76,11 +88,13 @@ class BOTMSession(Session):
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message_text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message_text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -95,8 +109,10 @@ class BOTMSession(Session):
 
             for i, book in enumerate(books):
                 name = BookCrushBot.escape(book["name"])
-                author = BookCrushBot.escape(book["author"])
-                message_text += f"{i+1}\. ISBN : {book['isbn']}\n*{name}* by _{author}_\n\n"
+                authors = BookCrushBot.escape(book["authors"])
+                message_text += (
+                    f"{i+1}\. ISBN : {book['isbn']}\n*{name}* by _{authors}_\n\n"
+                )
                 buttons.insert(i, [(book["name"], f"botm_accept_{i}")])
 
             message_text += "Not the one you are looking for \?\n"
@@ -108,11 +124,13 @@ class BOTMSession(Session):
         message_text += f"Please try [narrowing]({url}) your search\."
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message_text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message_text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -123,21 +141,25 @@ class BOTMSession(Session):
 
         if book:
             name = BookCrushBot.escape(book["name"])
-            author = BookCrushBot.escape(book["author"])
-            message_text = f"**{name}** by *{author}*"
+            authors = BookCrushBot.escape(book["authors"])
+            message_text = f"**{name}** by *{authors}*"
             buttons.insert(0, [("Yes", "botm_accept_0")])
             self.books = [book]
 
         else:
-            message_text = "Your message doesn't match the given format. Did you miss something ?"
+            message_text = (
+                "Your message doesn't match the given format\. Did you miss something \?"
+            )
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message_text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message_text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -151,13 +173,18 @@ class BOTMSession(Session):
         if self.text_message_handler:
             self.text_message_handler(message["text"])
         else:
-            data = {"chat_id": self.chat_id, "text": "Please respond by the above buttons."}
+            data = {
+                "chat_id": self.chat_id,
+                "text": "Please respond by the above buttons.",
+            }
             BookCrushBot.request(self.url + "/sendMessage", data)
 
     def respond_query(self, query):
 
         data = query["data"]
-        BookCrushBot.request(self.url + "/answerCallbackQuery", {"callback_query_id": query["id"]})
+        BookCrushBot.request(
+            self.url + "/answerCallbackQuery", {"callback_query_id": query["id"]}
+        )
         self.text_message_handler = None
 
         if data == "botm_start":
@@ -199,25 +226,35 @@ class BOTMSession(Session):
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
     def send_suggest(self):
 
         text = "Please choose the method of suggestion."
-        buttons = [[("ISBN", "botm_suggest_isbn"), ("Name", "botm_suggest_name"), ("Raw", "botm_suggest_raw")],
-                   [("Go Back", "botm_start")]]
+        buttons = [
+            [
+                ("ISBN", "botm_suggest_isbn"),
+                ("Name", "botm_suggest_name"),
+                ("Raw", "botm_suggest_raw"),
+            ],
+            [("Go Back", "botm_start")],
+        ]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)["message_id"]
 
@@ -229,10 +266,12 @@ class BOTMSession(Session):
         buttons = [[("Go Back", "botm_suggest")]]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -244,10 +283,12 @@ class BOTMSession(Session):
         buttons = [[("Go Back", "botm_suggest")]]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -255,16 +296,18 @@ class BOTMSession(Session):
 
         self.text_message_handler = self.handle_raw
 
-        text = "Enter the details of your book in the following format\._\nName\nAuthor\nGenre A\nGenre B\nNote\n_"
+        text = "Enter the details of your book in the following format\._\nName\nAuthors\nGenres\nNote\n_"
 
         buttons = [[("Go Back", "botm_suggest")]]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -275,13 +318,20 @@ class BOTMSession(Session):
             data["message_id"] = self.base_message_id
             BookCrushBot.request(self.url + "/editMessageText", data)
         else:
-            self.base_message_id = BookCrushBot.request(self.url + "/sendMessage", data)["message_id"]
+            self.base_message_id = BookCrushBot.request(
+                self.url + "/sendMessage", data
+            )["message_id"]
 
     def submit_book(self, ix=0):
 
         book = self.books[ix]
         BookCrushBot.add_botm_suggestion(
-            self.user_id, book["isbn"], book["name"], book["author"], book["genre_a"], book["genre_b"], book["note"]
-            )
+            self.user_id,
+            book["isbn"],
+            book["name"],
+            book["authors"],
+            book["genres"],
+            book["note"],
+        )
         self.suggested_books.append(book["name"])
         self.books = []

@@ -1,8 +1,8 @@
 import time
 import BookCrushBot
 
-class Session:
 
+class Session:
     def __init__(self, chat, user, time_limit):
 
         self.chat_id = chat["id"]

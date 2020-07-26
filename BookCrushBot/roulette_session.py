@@ -3,7 +3,6 @@ from .session import Session
 
 
 class RouletteSession(Session):
-
     def __init__(self, chat, user, time_limit=300):
         Session.__init__(self, chat, user, time_limit)
         self.base_message_id = None
@@ -18,15 +17,21 @@ class RouletteSession(Session):
         if premature:
             message = "You have started another session. So this one expired."
         else:
-            message = "Sorry, your session expired. Use /roulette to start a new session."
+            message = (
+                "Sorry, your session expired. Use /roulette to start a new session."
+            )
 
-        data = {"chat_id": self.chat_id,
-                "text": message,
-                "message_id": self.base_message_id}
+        data = {
+            "chat_id": self.chat_id,
+            "text": message,
+            "message_id": self.base_message_id,
+        }
         try:
             BookCrushBot.request_async(self.url + "/editMessageText", data)
         except AssertionError:
-            return f"Failed to expire session of {self.base_message['from']['username']}"
+            return (
+                f"Failed to expire session of {self.base_message['from']['username']}"
+            )
 
     def get_welcome_message(self):
 
@@ -42,10 +47,12 @@ class RouletteSession(Session):
 
         keyboard_markup = BookCrushBot.get_buttons_markup([buttons])
 
-        data = {"chat_id": self.chat_id,
-                "text": text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         return data
 
@@ -56,9 +63,9 @@ class RouletteSession(Session):
 
         if book:
             name = BookCrushBot.escape(book["name"])
-            author = BookCrushBot.escape(book["author"])
+            authors = BookCrushBot.escape(book["authors"])
 
-            message_text = f"ISBN : {book['isbn']}\n*{name}* by _{author}_"
+            message_text = f"ISBN : {book['isbn']}\n*{name}* by _{authors}_"
             buttons.insert(0, [("Yes", "roulette_accept_0")])
             self.books = [book]
 
@@ -67,11 +74,13 @@ class RouletteSession(Session):
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message_text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message_text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -86,8 +95,10 @@ class RouletteSession(Session):
 
             for i, book in enumerate(books):
                 name = BookCrushBot.escape(book["name"])
-                author = BookCrushBot.escape(book["author"])
-                message_text += f"{i+1}\. ISBN : {book['isbn']}\n*{name}* by _{author}_\n\n"
+                authors = BookCrushBot.escape(book["authors"])
+                message_text += (
+                    f"{i+1}\. ISBN : {book['isbn']}\n*{name}* by _{authors}_\n\n"
+                )
                 buttons.insert(i, [(book["name"], f"roulette_accept_{i}")])
 
             message_text += "Not the one you are looking for \?\n"
@@ -99,11 +110,13 @@ class RouletteSession(Session):
         message_text += f"Please try [narrowing]({url}) your search\."
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message_text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message_text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -114,21 +127,25 @@ class RouletteSession(Session):
 
         if book:
             name = BookCrushBot.escape(book["name"])
-            author = BookCrushBot.escape(book["author"])
-            message_text = f"**{name}** by *{author}*"
+            authors = BookCrushBot.escape(book["authors"])
+            message_text = f"**{name}** by *{authors}*"
             buttons.insert(0, [("Yes", "roulette_accept_0")])
             self.books = [book]
 
         else:
-            message_text = "Your message doesn't match the given format\. Did you miss something ?"
+            message_text = (
+                "Your message doesn't match the given format\. Did you miss something \?"
+            )
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message_text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message_text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -140,26 +157,32 @@ class RouletteSession(Session):
         self.search_results = []
 
         if books:
-            text.append("The following books match the keyword\. Choose the book you want to *remove*\.")
+            text.append(
+                "The following books match the keyword\. Choose the book you want to *remove*\."
+            )
             text.append("Please be aware that you *can not undo* the removal\.")
             for i, book in enumerate(books):
                 name = BookCrushBot.escape(book["name"])
-                author = BookCrushBot.escape(book["author"])
-                text.append(f"{i+1}\. *{name}* by _{author}_")
+                authors = BookCrushBot.escape(book["authors"])
+                text.append(f"{i+1}\. *{name}* by _{authors}_")
                 buttons.insert(0, [(book["name"], f"roulette_remove_{i}")])
                 self.search_results.append(book["name"])
             text.append("Cannot find the book \? Try again with a suitable keyword \!")
         else:
-            text.append("Sorry we can't find any book matching the keyword\. Why not try again \?")
+            text.append(
+                "Sorry we can't find any book matching the keyword\. Why not try again \?"
+            )
 
         message = "\n".join(text)
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": message,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": message,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)["message_id"]
 
@@ -174,13 +197,18 @@ class RouletteSession(Session):
         if self.text_message_handler:
             self.text_message_handler(message["text"])
         else:
-            data = {"chat_id": self.chat_id, "text": "Please respond by the above buttons."}
+            data = {
+                "chat_id": self.chat_id,
+                "text": "Please respond by the above buttons.",
+            }
             BookCrushBot.request(self.url + "/sendMessage", data)
 
     def respond_query(self, query):
 
         data = query["data"]
-        BookCrushBot.request(self.url + "/answerCallbackQuery", {"callback_query_id": query["id"]})
+        BookCrushBot.request(
+            self.url + "/answerCallbackQuery", {"callback_query_id": query["id"]}
+        )
         self.text_message_handler = None
 
         if data == "roulette_start":
@@ -217,15 +245,22 @@ class RouletteSession(Session):
     def send_add(self):
 
         text = "Please choose the method of additions."
-        buttons = [[("ISBN", "roulette_add_isbn"), ("Name", "roulette_add_name"),
-                    ("Raw", "roulette_add_raw")],
-                   [("Go Back", "roulette_start")]]
+        buttons = [
+            [
+                ("ISBN", "roulette_add_isbn"),
+                ("Name", "roulette_add_name"),
+                ("Raw", "roulette_add_raw"),
+            ],
+            [("Go Back", "roulette_start")],
+        ]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)["message_id"]
 
@@ -237,10 +272,12 @@ class RouletteSession(Session):
         buttons = [[("Go Back", "roulette_add")]]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -252,10 +289,12 @@ class RouletteSession(Session):
         buttons = [[("Go Back", "roulette_add")]]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -263,16 +302,18 @@ class RouletteSession(Session):
 
         self.text_message_handler = self.handle_raw
 
-        text = "Enter the details of your book in the following format\._\nName\nAuthor\nGenre A\nGenre B\nNote\n_"
+        text = "Enter the details of your book in the following format\._\nName\nAuthors\nGenres\nNote\n_"
 
         buttons = [[("Go Back", "roulette_add")]]
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -284,11 +325,13 @@ class RouletteSession(Session):
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 
-        data = {"chat_id": self.chat_id,
-                "message_id": self.base_message_id,
-                "text": text,
-                "parse_mode": "MarkdownV2",
-                "reply_markup": keyboard_markup}
+        data = {
+            "chat_id": self.chat_id,
+            "message_id": self.base_message_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "reply_markup": keyboard_markup,
+        }
 
         BookCrushBot.request(self.url + "/editMessageText", data)
 
@@ -299,13 +342,20 @@ class RouletteSession(Session):
             data["message_id"] = self.base_message_id
             BookCrushBot.request(self.url + "/editMessageText", data)
         else:
-            self.base_message_id = BookCrushBot.request(self.url + "/sendMessage", data)["message_id"]
+            self.base_message_id = BookCrushBot.request(
+                self.url + "/sendMessage", data
+            )["message_id"]
 
     def submit_book(self, ix=0):
 
         book = self.books[ix]
         BookCrushBot.add_to_roulette(
-            self.user_id, book["isbn"], book["name"], book["author"], book["genre_a"], book["genre_b"], book["note"]
-            )
+            self.user_id,
+            book["isbn"],
+            book["name"],
+            book["authors"],
+            book["genres"],
+            book["note"],
+        )
         self.books_count += 1
         self.books = []
