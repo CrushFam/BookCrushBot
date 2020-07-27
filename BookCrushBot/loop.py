@@ -43,7 +43,7 @@ class Loop:
         }
 
         if text in ("/contact", "/guide", "/help", "/start"):
-            filename = text[1:].upper() + ".md"
+            filename = "data/" + text[1:].upper() + ".md"
             msg = open(filename).read()
             data["text"] = msg.format(USER=message["from"]["first_name"])
             BookCrushBot.request_async(self.url + "/sendMessage", data)

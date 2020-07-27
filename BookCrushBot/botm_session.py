@@ -147,9 +147,7 @@ class BOTMSession(Session):
             self.books = [book]
 
         else:
-            message_text = (
-                "Your message doesn't match the given format\. Did you miss something \?"
-            )
+            message_text = "Your message doesn't match the given format\. Did you miss something \?"
 
         keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
 

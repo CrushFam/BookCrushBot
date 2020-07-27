@@ -36,14 +36,16 @@ def get_book_by_isbn(isbn):
 
     details = result[f"ISBN:{isbn}"]
     authors = ", ".join((author["name"] for author in details.get("authors", ["null"])))
-    genres = ", ".join((subject["name"] for subject in details.get("subjects", [{"name": "null"}])[:3]))
+    genres = ", ".join(
+        (subject["name"] for subject in details.get("subjects", [{"name": "null"}])[:3])
+    )
 
     data = {
         "isbn": isbn,
         "name": details["title"],
         "authors": authors,
         "genres": genres,
-        "note": "openlibrary-isbn"
+        "note": "openlibrary-isbn",
     }
     return data
 
