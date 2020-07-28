@@ -5,20 +5,24 @@ import requests
 import BookCrushBot
 
 
-def add_botm_suggestion(user, isbn, name, authors, genres, note):
+def add_botm_suggestion(user_id, isbn, name, authors, genres, note):
 
-    BookCrushBot.DB_CURSOR.execute(
-        "INSERT INTO botm VALUES(?, ?, ?, ?, ?, ?);",
-        (user, isbn, name, authors, genres, note),
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute(
+        "INSERT INTO botm VALUES(%s, %s, %s, %s, %s, %s);",
+        (user_id, isbn, name, authors, genres, note),
     )
+    cursor.close()
 
 
-def add_to_roulette(user, isbn, name, authors, genres, note):
+def add_to_roulette(user_id, isbn, name, authors, genres, note):
 
-    BookCrushBot.DB_CURSOR.execute(
-        "INSERT INTO roulette VALUES(?, ?, ?, ?, ?, ?);",
-        (user, isbn, name, authors, genres, note),
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute(
+        "INSERT INTO roulette VALUES(%s, %s, %s, %s, %s, %s);",
+        (user_id, isbn, name, authors, genres, note),
     )
+    cursor.close()
 
 
 def escape(string):
@@ -88,10 +92,9 @@ def get_book_by_raw(text):
 
 def get_botm_suggestions(user):
 
-    result = BookCrushBot.DB_CURSOR.execute(
-        "SELECT name FROM botm WHERE user=?;", (user,)
-    )
-    return [res[0] for res in result]
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute("SELECT name FROM botm WHERE user=%s;", (user,))
+    return [row[0] for row in cursor]
 
 
 def get_buttons_markup(rows):
@@ -103,20 +106,20 @@ def get_buttons_markup(rows):
     return json.dumps(markup)
 
 
-def get_roulette_additions_count(user):
+def get_roulette_additions_count(user_id):
 
-    result = BookCrushBot.DB_CURSOR.execute(
-        "SELECT 1 FROM roulette WHERE user=?;", (user,)
-    )
-    return len(tuple(result))
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute("SELECT COUNT(*) FROM roulette WHERE user_id=%s;", (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result[0][0]
 
 
-def get_roulette_additions(user):
+def get_roulette_additions(user_id):
 
-    result = BookCrushBot.DB_CURSOR.execute(
-        "SELECT name FROM roulette WHERE user=?;", (user,)
-    )
-    return [res[0] for res in result]
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute("SELECT name FROM roulette WHERE user_id=%s;", (user_id,))
+    return [row[0] for row in cursor]
 
 
 def log(*messages):
@@ -124,18 +127,18 @@ def log(*messages):
     print(time.ctime(), "::", *messages, file=BookCrushBot.FILE)
 
 
-def remove_botm_suggestion(user, name):
+def remove_botm_suggestion(user_id, name):
 
-    BookCrushBot.DB_CURSOR.execute(
-        "DELETE FROM botm WHERE user=? AND name=?", (user, name)
-    )
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute("DELETE FROM botm WHERE user_id=%s AND name=%s", (user_id, name))
+    cursor.close()
 
 
-def remove_roulette_addition(user, name):
+def remove_roulette_addition(user_id, name):
 
-    BookCrushBot.DB_CURSOR.execute(
-        "DELETE FROM roulette WHERE user=? AND name=?", (user, name)
-    )
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute("DELETE FROM roulette WHERE user_id=%s AND name=%s", (user_id, name))
+    cursor.close()
 
 
 def request(url, data=None):
@@ -153,17 +156,12 @@ def request_async(url, data=None):
     thread.start()
 
 
-def search_roulette_books(user, keyword, limit=10):
+def search_roulette_books(user_id, keyword):
 
-    result = BookCrushBot.DB_CURSOR.execute(
-        "SELECT name, authors FROM roulette WHERE user=?;", (user,)
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute(
+        "SELECT name, authors FROM roulette WHERE user_id=%s AND name ILIKE %s;", (user_id, f"%{keyword}%")
     )
-    matches = []
-    count = 0
-    for name, authors in result:
-        if keyword in name.lower():
-            matches.append({"name": name, "authors": authors})
-        if count == 9:
-            break
-        count += 1
-    return matches
+    result = cursor.fetchall()
+    cursor.close()
+    return result

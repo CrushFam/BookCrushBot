@@ -1,5 +1,5 @@
 import os
-import sqlite3
+import psycopg2
 import sys
 
 from .botm_session import BOTMSession
@@ -32,10 +32,7 @@ ESCAPE_TABLE = {
     ]
 }
 
-DB_CONNECTION = sqlite3.connect(
-    os.getenv("database", "data/database.sql"), check_same_thread=False
-)
-DB_CURSOR = DB_CONNECTION.cursor()
+DATABASE = psycopg2.connect(os.getenv("DATABASE_URL"))
 
 botm = os.getenv("botm", "True")  # Is BOTM open ?
 if botm == "False":

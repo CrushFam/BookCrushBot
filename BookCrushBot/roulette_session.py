@@ -32,6 +32,7 @@ class RouletteSession(Session):
             return (
                 f"Failed to expire session of {self.base_message['from']['username']}"
             )
+        BookCrushBot.DATABASE.commit()
 
     def get_welcome_message(self):
 
