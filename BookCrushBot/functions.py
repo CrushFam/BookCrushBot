@@ -12,6 +12,7 @@ def add_botm_suggestion(user_id, isbn, name, authors, genres, note):
         "INSERT INTO botm VALUES(%s, %s, %s, %s, %s, %s);",
         (user_id, isbn, name, authors, genres, note),
     )
+    BookCrushBot.DATABASE.commit()
     cursor.close()
 
 
@@ -22,6 +23,7 @@ def add_to_roulette(user_id, isbn, name, authors, genres, note):
         "INSERT INTO roulette VALUES(%s, %s, %s, %s, %s, %s);",
         (user_id, isbn, name, authors, genres, note),
     )
+    BookCrushBot.DATABASE.commit()
     cursor.close()
 
 
@@ -131,6 +133,7 @@ def remove_botm_suggestion(user_id, name):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute("DELETE FROM botm WHERE user_id=%s AND name=%s", (user_id, name))
+    BookCrushBot.DATABASE.commit()
     cursor.close()
 
 
@@ -138,6 +141,7 @@ def remove_roulette_addition(user_id, name):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute("DELETE FROM roulette WHERE user_id=%s AND name=%s", (user_id, name))
+    BookCrushBot.DATABASE.commit()
     cursor.close()
 
 

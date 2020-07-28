@@ -160,12 +160,12 @@ class RouletteSession(Session):
                 "The following books match the keyword\. Choose the book you want to *remove*\."
             )
             text.append("Please be aware that you *can not undo* the removal\.")
-            for i, book in enumerate(books):
-                name = BookCrushBot.escape(book["name"])
-                authors = BookCrushBot.escape(book["authors"])
-                text.append(f"{i+1}\. *{name}* by _{authors}_")
-                buttons.insert(0, [(book["name"], f"roulette_remove_{i}")])
-                self.search_results.append(book["name"])
+            for i, (name, authors) in enumerate(books):
+                name_ = BookCrushBot.escape(name)
+                authors_ = BookCrushBot.escape(authors)
+                text.append(f"{i+1}\. *{name_}* by _{authors_}_")
+                buttons.insert(0, [(name, f"roulette_remove_{i}")])
+                self.search_results.append(name)
             text.append("Cannot find the book \? Try again with a suitable keyword \!")
         else:
             text.append(
