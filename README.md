@@ -14,7 +14,7 @@ The required parameters are taken from environment variables.
  2. BOTM - (True/False) Whether to allow BOTM sessions. (Default True)
  3. BOTM_LIMIT - The number of books to allow per person for BOTM. (Default 2)
  4. FILE - The path of the file for logging progress. (Default sys.stdout)
- 5. DATABASE - The path to SQLite database. (Default `data/database.sql`)
+ 5. DATABASE_URL - The path to PostgreSQL database.
  6. ROULETTE - (True/False) Whether to allow Roulette sessions. (Default True)
 
 # License
