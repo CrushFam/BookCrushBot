@@ -90,10 +90,10 @@ def get_book_by_raw(text):
     return data
 
 
-def get_botm_suggestions(user):
+def get_botm_suggestions(user_id):
 
     cursor = BookCrushBot.DATABASE.cursor()
-    cursor.execute("SELECT name FROM botm WHERE user=%s;", (user,))
+    cursor.execute("SELECT name FROM botm WHERE user_id=%s;", (user_id,))
     return [row[0] for row in cursor]
 
 
