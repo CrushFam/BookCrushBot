@@ -26,7 +26,7 @@ class Loop:
                 query = update["callback_query"]
                 self.respond_query(query)
             else:
-                print(update)
+                BookCrushBot.log("Mismatching update :", update)
 
             self.data["offset"] = update["update_id"] + 1
 
@@ -45,7 +45,13 @@ class Loop:
         if text in ("/contact", "/guide", "/help", "/start"):
             filename = "data/" + text[1:].upper() + ".md"
             msg = open(filename).read()
-            data["text"] = msg.format(USER=message["from"]["first_name"])
+
+            if text == "/start":
+                botm = "open" if BookCrushBot.BOTM else "closed"
+                roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
+                start_text = msg.format(USER=message["from"]["first_name"], BOTM=botm, ROULETTE=roulette)
+                data["text"] = start_text
+
             BookCrushBot.request_async(self.url + "/sendMessage", data)
 
         elif text in ("/botm", "/roulette"):
@@ -57,11 +63,18 @@ class Loop:
                 session.expire(premature=True)
 
             if text == "/botm":
-                session = BookCrushBot.BOTMSession(message["chat"], message["from"])
+                if BookCrushBot.BOTM:
+                    session = BookCrushBot.BOTMSession(message["chat"], message["from"])
+                else:
+                    data["text"] = "BOTM is closed at the moment\."
+                    return BookCrushBot.request_async(self.url + "/sendMessage", data)
             else:
-                session = BookCrushBot.RouletteSession(
-                    message["chat"], message["from"], 300
-                )
+                if BookCrushBot.ROULETTE:
+                    session = BookCrushBot.RouletteSession(message["chat"], message["from"])
+                else:
+                    data["text"] = "BOTM is closed at the moment\."
+                    return BookCrushBot.request_async(self.url + "/sendMessage", data)
+
             self.sessions[chat_id] = session
             BookCrushBot.log(
                 f"{text[1:].title()} Session started for {message['from']['username']}"
