@@ -72,7 +72,7 @@ class Loop:
                 if BookCrushBot.ROULETTE:
                     session = BookCrushBot.RouletteSession(message["chat"], message["from"])
                 else:
-                    data["text"] = "BOTM is closed at the moment\."
+                    data["text"] = "Roulette is closed at the moment\."
                     return BookCrushBot.request_async(self.url + "/sendMessage", data)
 
             self.sessions[chat_id] = session
