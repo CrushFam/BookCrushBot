@@ -45,6 +45,7 @@ class Loop:
         if text in ("/contact", "/guide", "/help", "/start"):
             filename = "data/" + text[1:].upper() + ".md"
             msg = open(filename).read()
+            data["text"] = msg
 
             if text == "/start":
                 botm = "open" if BookCrushBot.BOTM else "closed"
