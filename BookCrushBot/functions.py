@@ -73,7 +73,7 @@ def get_book_by_raw(text):
 
     text = text.splitlines()
     if len(text) == 3:
-        text[3] = "nil"
+        text.append("nil")
     elif len(text) != 4:
         return {}
     data = {
