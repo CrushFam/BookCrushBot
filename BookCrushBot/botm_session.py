@@ -31,7 +31,7 @@ class BOTMSession(Session):
             buttons.pop(1)
         else:
             parts.append("You have suggested the following books :")
-            parts.extend((f"  {i+1}. _{BookCrushBot.escape(name)}_" for (i, name) in books))
+            parts.extend((f"  {i+1}. _{name}_" for (i, name) in books))
             if ln < BookCrushBot.BOTM_LIMIT:
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
