@@ -55,8 +55,9 @@ class Loop:
     def run(self, poll_interval=1, timeout=1):
 
         port = BookCrushBot.PORT
+        token = BookCrushBot.TOKEN
         BookCrushBot.logger.info("Started server")
-        self.updater.start_webhook(port=port, allowed_updates=["message, callback_query"])
+        self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token, allowed_updates=["message, callback_query"])
         self.updater.idle()
 
     def send_contact(self, update, context):
