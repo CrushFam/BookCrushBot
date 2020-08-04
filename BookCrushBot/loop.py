@@ -1,134 +1,121 @@
-import sys
-import time
-import threading
+from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, MessageHandler, Updater
 import BookCrushBot
 
 
 class Loop:
-    def __init__(self, offset=0, sleep=1, journal=sys.stdout, timeout=1):
-        self.url = BookCrushBot.URL
-        self.data = {
-            "allowed_updates": '["message", "callback_query"]',
-            "offset": offset,
-            "timeout": timeout,
-        }
-        self.sleep = sleep
+    def __init__(self):
+
+        self.updater = Updater(token=BookCrushBot.TOKEN, use_context=True, user_sig_handler=self.stop)
+        self.dispatcher = self.updater.dispatcher
         self.sessions = {}
-        self.journal = journal
 
-    def handle_updates(self, result):
+        handlers = [("start", self.send_start), ("contact", self.send_contact),
+                    ("guide", self.send_guide), ("help", self.send_help),
+                    ("botm", self.start_botm), ("roulette", self.start_roulette)]
+        message_handler = MessageHandler(Filters.text & (~Filters.command), self.handle_message)
+        callback_handler = CallbackQueryHandler(self.handle_query)
 
-        for update in result:
-            if "message" in update:
-                message = update["message"]
-                self.respond_message(message)
-            elif "callback_query" in update:
-                query = update["callback_query"]
-                self.respond_query(query)
-            else:
-                BookCrushBot.log("Mismatching update :", update)
+        for command, func in handlers:
+            handler = CommandHandler(command, func)
+            self.dispatcher.add_handler(handler)
+        self.dispatcher.add_handler(message_handler)
+        self.dispatcher.add_handler(callback_handler)
 
-            self.data["offset"] = update["update_id"] + 1
+    def flush_session(self, user_id):
 
-    def respond_message(self, message):
-
-        user_id = message["from"]["id"]
-        chat_id = message["chat"]["id"]
-        text = message["text"]
-
-        data = {
-            "chat_id": chat_id,
-            "text": f"_{text}_ \?\?\?\nSorry I did not get it\.",
-            "parse_mode": "MarkdownV2",
-        }
-
-        if text in ("/contact", "/guide", "/help", "/start"):
-            filename = "data/" + text[1:].upper() + ".md"
-            msg = open(filename).read()
-            data["text"] = msg
-
-            if text == "/start":
-                botm = "open" if BookCrushBot.BOTM else "closed"
-                roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
-                start_text = msg.format(USER=message["from"]["first_name"], BOTM=botm, ROULETTE=roulette)
-                data["text"] = start_text
-
-            BookCrushBot.request_async(self.url + "/sendMessage", data)
-
-        elif text in ("/botm", "/roulette"):
-            try:
-                session = self.sessions.pop(user_id)
-            except KeyError:
-                pass
-            else:
-                session.expire(premature=True)
-
-            if text == "/botm":
-                if BookCrushBot.BOTM:
-                    session = BookCrushBot.BOTMSession(message["chat"], message["from"])
-                else:
-                    data["text"] = "BOTM is closed at the moment\."
-                    return BookCrushBot.request_async(self.url + "/sendMessage", data)
-            else:
-                if BookCrushBot.ROULETTE:
-                    session = BookCrushBot.RouletteSession(message["chat"], message["from"])
-                else:
-                    data["text"] = "Roulette is closed at the moment\."
-                    return BookCrushBot.request_async(self.url + "/sendMessage", data)
-
-            self.sessions[chat_id] = session
-            BookCrushBot.log(
-                f"{text[1:].title()} Session started for {message['from']['username']}"
-            )
-
-        else:
-            try:
-                session = self.sessions[user_id]
-            except KeyError:
-                BookCrushBot.request_async(self.url + "/sendMessage", data)
-            else:
-                thread = threading.Thread(
-                    target=session.respond_message, args=(message,)
-                )
-                thread.start()
-
-    def respond_query(self, query):
-
-        user_id = query["from"]["id"]
         try:
             session = self.sessions[user_id]
         except KeyError:
-            BookCrushBot.log(f"Orphan query from {query['from']['username']}")
+            pass
         else:
-            thread = threading.Thread(target=session.respond_query, args=(query,))
-            thread.start()
+            session.expire()
 
-    def run(self):
+    def handle_message(self, update, context):
 
+        user_id = update.effective_user.id
         try:
-            self.wait()
-        except KeyboardInterrupt:
-            self.stop()
-            BookCrushBot.log("Bye")
+            session = self.sessions[user_id]
+        except KeyError:
+            text = "Sorry, I can't get it. Try /help if you are stuck."
+            chat_id = update.effective_chat.id
+            context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+        else:
+            session.respond_message(update.message)
 
-    def stop(self):
+    def handle_query(self, update, context):
 
-        BookCrushBot.DB_CURSOR.close()
-        BookCrushBot.DB_CONNECTION.commit()
-        BookCrushBot.DB_CONNECTION.close()
+        user_id = update.effective_user.id
+        try:
+            session = self.sessions[user_id]
+        except KeyError:
+            BookCrushBot.logger.warning(f"Orphan query : {update.query.data}")
+        else:
+            session.respond_query(update.callback_query)
 
-    def wait(self):
+    def run(self, poll_interval=1, timeout=1):
 
-        while True:
-            BookCrushBot.log("Getting updates :", self.data["offset"])
-            try:
-                result = BookCrushBot.request(self.url + "/getUpdates", self.data)
-            except AssertionError as error:
-                BookCrushBot.log("Failed to get updates :", error)
-            self.handle_updates(result)
+        BookCrushBot.logger.info("Started polling")
+        self.updater.start_polling(poll_interval=poll_interval, timeout=timeout, allowed_updates=["message, callback_query"])
+        self.updater.idle()
 
-            for chat_id, session in tuple(self.sessions.items()):
-                if not session.has_time_left():
-                    session.expire()
-                    self.sessions.pop(chat_id)
-            time.sleep(self.sleep)
+    def send_contact(self, update, context):
+
+        text = open("data/CONTACT.md").read()
+        chat_id = update.effective_chat.id
+        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+
+    def send_guide(self, update, context):
+
+        text = open("data/GUIDE.md").read()
+        chat_id = update.effective_chat.id
+        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+
+    def send_help(self, update, context):
+
+        text = open("data/HELP.md").read()
+        chat_id = update.effective_chat.id
+        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+
+    def send_start(self, update, context):
+
+        user = update.effective_user
+        first = user.first_name if user.first_name else ""
+        last = user.last_name if user.last_name else ""
+        name = f"{first} {last}"
+        botm = "open" if BookCrushBot.BOTM else "closed"
+        roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
+        text = open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
+        chat_id = update.effective_chat.id
+        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+
+    def start_botm(self, update, context):
+
+        user = update.effective_user
+        chat = update.effective_chat
+        self.flush_session(user.id)
+
+        if BookCrushBot.BOTM:
+            session = BookCrushBot.BOTMSession(context.bot, user, chat)
+            self.sessions[user.id] = session
+        else:
+            text = "Sorry Book Of The Month suggestions are closed."
+            context.bot.send_message(chat_id=chat.id, text=text)
+
+    def start_roulette(self, update, context):
+
+        user = update.effective_user
+        chat = update.effective_chat
+
+        self.flush_session(user.id)
+
+        if BookCrushBot.ROULETTE:
+            session = BookCrushBot.RouletteSession(context.bot, user, chat)
+            self.sessions[user.id] = session
+        else:
+            text = "Sorry Roulette suggestions are closed."
+            context.bot.send_message(chat_id=chat.id, text=text)
+
+    def stop(self, *_):
+
+        self.updater.stop()
+        BookCrushBot.logger.info("Bye")

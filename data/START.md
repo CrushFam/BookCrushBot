@@ -1,8 +1,8 @@
-Hey there *{USER}* \!
+Hey there *{NAME}* !
 
 *Did you know ?*
-  ∙ Suggestions for book of the month \(_BOTM_\) is *{BOTM}*\.
-  ∙ _Roulette_ is *{ROULETTE}* new books\.
+  ∙ Suggestions for book of the month (_BOTM_) is *{BOTM}*.
+  ∙ _Roulette_ is *{ROULETTE}* new books.
 
-If you are stuck use /help\.
-Thanks\.
+If you are stuck use /help.
+Thanks.

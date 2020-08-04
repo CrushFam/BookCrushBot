@@ -1,6 +1,3 @@
-import json
-import time
-import threading
 import requests
 import BookCrushBot
 
@@ -25,11 +22,6 @@ def add_to_roulette(user_id, isbn, name, authors, genres, note):
     )
     BookCrushBot.DATABASE.commit()
     cursor.close()
-
-
-def escape(string):
-
-    return string.translate(BookCrushBot.ESCAPE_TABLE)
 
 
 def get_book_by_isbn(isbn):
@@ -80,7 +72,9 @@ def get_book_by_name(name, limit=3):
 def get_book_by_raw(text):
 
     text = text.splitlines()
-    if len(text) != 4:
+    if len(text) == 3:
+        text[3] = "nil"
+    elif len(text) != 4:
         return {}
     data = {
         "isbn": 0,
@@ -99,15 +93,6 @@ def get_botm_suggestions(user_id):
     return [row[0] for row in cursor]
 
 
-def get_buttons_markup(rows):
-
-    button_rows = [
-        [{"text": label, "callback_data": cb} for label, cb in row] for row in rows
-    ]
-    markup = {"inline_keyboard": button_rows}
-    return json.dumps(markup)
-
-
 def get_roulette_additions_count(user_id):
 
     cursor = BookCrushBot.DATABASE.cursor()
@@ -124,11 +109,6 @@ def get_roulette_additions(user_id):
     return [row[0] for row in cursor]
 
 
-def log(*messages):
-
-    print(time.ctime(), "::", *messages, file=BookCrushBot.FILE)
-
-
 def remove_botm_suggestion(user_id, name):
 
     cursor = BookCrushBot.DATABASE.cursor()
@@ -143,21 +123,6 @@ def remove_roulette_addition(user_id, name):
     cursor.execute("DELETE FROM roulette WHERE user_id=%s AND name=%s", (user_id, name))
     BookCrushBot.DATABASE.commit()
     cursor.close()
-
-
-def request(url, data=None):
-
-    response = requests.get(url, data)
-    response_json = response.json()
-    if response_json["ok"]:
-        return response_json["result"]
-    raise AssertionError(response_json["description"])
-
-
-def request_async(url, data=None):
-
-    thread = threading.Thread(target=request, args=(url, data))
-    thread.start()
 
 
 def search_roulette_books(user_id, keyword):

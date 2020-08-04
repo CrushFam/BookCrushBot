@@ -1,331 +1,212 @@
+import telegram as tgm
 import BookCrushBot
 from .session import Session
 
 
 class BOTMSession(Session):
-    def __init__(self, chat, user, time_limit=300):
-        Session.__init__(self, chat, user, time_limit)
+    def __init__(self, bot, chat, user):
+        Session.__init__(self, bot, chat, user)
         self.base_message_id = None
         self.books = []
-        self.suggested_books = BookCrushBot.get_botm_suggestions(self.user_id)
+        self.suggested_books = BookCrushBot.get_botm_suggestions(self.user.id)
         self.text_message_handler = None
         self.send_welcome()
 
-    def expire(self, premature=False):
+    def expire(self):
 
-        if premature:
-            message = "You have started another session. So this one expired."
-        else:
-            message = "Sorry, your session expired. Use /botm to start a new session."
-
-        data = {
-            "chat_id": self.chat_id,
-            "text": message,
-            "message_id": self.base_message_id,
-        }
-        try:
-            BookCrushBot.request_async(self.url + "/editMessageText", data)
-        except AssertionError:
-            return (
-                f"Failed to expire session of {self.base_message['from']['username']}"
-            )
+        text = "You have started another session. So this one expired."
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id)
         BookCrushBot.DATABASE.commit()
 
     def get_welcome_message(self):
 
-        text = f"*Book Of The Month Portal*\nYou can suggest {BookCrushBot.BOTM_LIMIT} books\.\n"
+        parts =[f"*Book Of The Month Portal*\nYou can suggest {BookCrushBot.BOTM_LIMIT} books."]
         ln = len(self.suggested_books)
         books = enumerate(self.suggested_books)
+        buttons = [tgm.InlineKeyboardButton(text="Suggest A Book", callback_data="suggest"),
+                   tgm.InlineKeyboardButton(text="Remove Suggested", callback_data="remove")]
 
         if ln == 0:
-            text += "You have not suggested any book\. Let's get started now \!\n"
-            buttons = [("Suggest A Book", "botm_suggest")]
+            parts.append("You have not suggested any book. Let's get started now !")
+            buttons.pop(1)
         else:
-            text += "You have suggested the following books :\n"
-            text += "\n".join(
-                (f"  {i+1}\. _{BookCrushBot.escape(name)}_" for (i, name) in books)
-            )
-            text += "\n"
-
+            parts.append("You have suggested the following books :")
+            parts.extend((f"  {i+1}. _{BookCrushBot.escape(name)}_" for (i, name) in books))
             if ln < BookCrushBot.BOTM_LIMIT:
                 more = BookCrushBot.BOTM_LIMIT - ln
-                text += f"{more} more book{'s' * (more != 1)} can be added \!"
-                buttons = [
-                    ("Suggest A Book", "botm_suggest"),
-                    ("Remove Suggested", "botm_remove"),
-                ]
+                parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
             else:
-                text += (
-                    "To add more books, you need to remove the suggested ones \.\.\."
-                )
-                buttons = [("Remove Suggested", "botm_remove")]
+                parts.append("To add more books, you need to remove the suggested ones ...")
+                buttons.pop(0)
 
-        keyboard_markup = BookCrushBot.get_buttons_markup([buttons])
-
-        data = {
-            "chat_id": self.chat_id,
-            "text": text,
-            "parse_mode": "MarkdownV2",
-            "reply_markup": keyboard_markup,
-        }
-
-        return data
+        text = "\n".join(parts)
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_row(buttons)
+        return text, keyboard_markup
 
     def handle_isbn(self, text):
 
         book = BookCrushBot.get_book_by_isbn(text)
-        buttons = [[("Try again", "botm_suggest_isbn"), ("Go Back", "botm_suggest")]]
+        buttons = [[tgm.InlineKeyboardButton(text="Try again", callback_data="suggest_isbn"),
+                   tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")]]
 
         if book:
-            name = BookCrushBot.escape(book["name"])
-            authors = BookCrushBot.escape(book["authors"])
-
-            message_text = f"ISBN : {book['isbn']}\n*{name}* by _{authors}_"
-            buttons.insert(0, [("Yes", "botm_accept_0")])
+            name = book["name"]
+            authors = book["authors"]
+            text = f"ISBN : {book['isbn']}\n*{name}* by _{authors}_"
+            buttons.insert(0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")])
             self.books = [book]
-
         else:
-            message_text = "Oops\. We can't find a book matching the ISBN\."
+            text = "Oops. We can't find a book matching the ISBN."
 
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": message_text,
-            "parse_mode": "MarkdownV2",
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
+                              parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def handle_name(self, text):
 
         books = BookCrushBot.get_book_by_name(text)
         url = f"http://openlibrary.org/search?title={text.replace(' ', '+')}"
-        buttons = [[("Try again", "botm_suggest_name"), ("Go Back", "botm_suggest")]]
+        buttons = [[tgm.InlineKeyboardButton(text="Try again", callback_data="suggest_name"),
+                    tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")]]
 
         if books:
-            message_text = f"We have found the following books\.\n"
-
+            parts = [f"We have found the following books\."]
             for i, book in enumerate(books):
-                name = BookCrushBot.escape(book["name"])
-                authors = BookCrushBot.escape(book["authors"])
-                message_text += (
-                    f"{i+1}\. ISBN : {book['isbn']}\n*{name}* by _{authors}_\n\n"
-                )
-                buttons.insert(i, [(book["name"], f"botm_accept_{i}")])
-
-            message_text += "Not the one you are looking for \?\n"
+                name = book["name"]
+                authors = book["authors"]
+                parts.append(f"{i+1}. ISBN : {book['isbn']}\n*{name}* by _{authors}_\n")
+                buttons.insert(i, [tgm.InlineKeyboardButton(text=book["name"], callback_data=f"accept_{i}")])
+            parts.append("Not the one you are looking for ?")
             self.books = books
-
         else:
-            message_text = "We can't find a book matching the name\."
+            parts.append("We can't find a book matching the name.")
 
-        message_text += f"Please try [narrowing]({url}) your search\."
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": message_text,
-            "parse_mode": "MarkdownV2",
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        parts.append(f"That's not what you want ? Try [narrowing]({url}) your search.")
+        text = "\n".join(parts)
+        keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
+                              parse_mode="Markdown", reply_markup=keyboard_markup, disable_web_page_preview=True)
 
     def handle_raw(self, text):
 
         book = BookCrushBot.get_book_by_raw(text)
-        buttons = [[("Try again", "botm_suggest_raw"), ("Go Back", "botm_suggest")]]
+        buttons = [[tgm.InlineKeyboardButton(text="Try again", callback_data="suggest_raw"),
+                    tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")]]
 
         if book:
-            name = BookCrushBot.escape(book["name"])
-            authors = BookCrushBot.escape(book["authors"])
-            message_text = f"**{name}** by *{authors}*"
-            buttons.insert(0, [("Yes", "botm_accept_0")])
+            name = book["name"]
+            authors = book["authors"]
+            text = f"**{name}** by *{authors}*"
+            buttons.insert(0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")])
             self.books = [book]
-
         else:
-            message_text = "Your message doesn't match the given format\. Did you miss something \?"
+            text = "Your message doesn't match the given format. Did you miss something ?"
 
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": message_text,
-            "parse_mode": "MarkdownV2",
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
+                              parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def remove_book(self, name):
 
-        BookCrushBot.remove_botm_suggestion(self.user_id, name)
+        BookCrushBot.remove_botm_suggestion(self.user.id, name)
         self.suggested_books.remove(name)
 
     def respond_message(self, message):
 
         if self.text_message_handler:
-            self.text_message_handler(message["text"])
+            self.text_message_handler(message.text)
         else:
-            data = {
-                "chat_id": self.chat_id,
-                "text": "Please respond by the above buttons.",
-            }
-            BookCrushBot.request(self.url + "/sendMessage", data)
+            self.bot.send_message(chat_id=self.chat.id, text="Please respond by above buttons.")
 
     def respond_query(self, query):
 
-        data = query["data"]
-        BookCrushBot.request(
-            self.url + "/answerCallbackQuery", {"callback_query_id": query["id"]}
-        )
+        data = query.data
+        self.bot.answer_callback_query(callback_query_id=query.id)
         self.text_message_handler = None
 
-        if data == "botm_start":
+        if data == "start":
             self.send_welcome(edit=True)
-
-        elif data == "botm_suggest":
+        elif data == "suggest":
             self.send_suggest()
-
-        elif data == "botm_remove":
+        elif data == "remove":
             self.send_remove()
-
-        elif data.startswith("botm_accept_"):
-            ix = int(data.lstrip("botm_accept_"))
+        elif data.startswith("accept_"):
+            ix = int(data.lstrip("accept_"))
             self.submit_book(ix)
             self.send_welcome(edit=True)
-
-        elif data.startswith("botm_remove_"):
-            name = data.lstrip("botm_remove_")
+        elif data.startswith("remove_"):
+            name = data.lstrip("remove_")
             self.remove_book(name)
             self.send_welcome(edit=True)
-
-        elif data == "botm_suggest_isbn":
+        elif data == "suggest_isbn":
             self.send_suggest_by_isbn()
-
-        elif data == "botm_suggest_name":
+        elif data == "suggest_name":
             self.send_suggest_by_name()
-
-        elif data == "botm_suggest_raw":
+        elif data == "suggest_raw":
             self.send_suggest_raw()
-
         else:
-            BookCrushBot.log("Unexpected BOTM query :", data)
+            BookCrushBot.logger.warning(f"Unexpected BOTM query : {data}")
 
     def send_remove(self):
 
-        text = "Choose the book you want to *remove*\. Please be aware that you *can not undo* the removal\."
-        buttons = [[(name, f"botm_remove_{name}")] for name in self.suggested_books]
-        buttons.append([("Go Back", "botm_start")])
-
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": text,
-            "parse_mode": "MarkdownV2",
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        text = "Choose the book you want to *remove*. Please be aware that you *can not undo* the removal."
+        buttons = [tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{name}") for name in self.suggested_books]
+        buttons.append(tgm.InlineKeyboardButton(text="Go Back", callback_data="start"))
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_column(buttons)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
+                              parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def send_suggest(self):
 
         text = "Please choose the method of suggestion."
-        buttons = [
-            [
-                ("ISBN", "botm_suggest_isbn"),
-                ("Name", "botm_suggest_name"),
-                ("Raw", "botm_suggest_raw"),
-            ],
-            [("Go Back", "botm_start")],
-        ]
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": text,
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)["message_id"]
+        buttons = [[tgm.InlineKeyboardButton(text="ISBN", callback_data="suggest_isbn"),
+                    tgm.InlineKeyboardButton(text="Name", callback_data="suggest_name"),
+                    tgm.InlineKeyboardButton(text="Raw", callback_data="suggest_raw"),],
+                   [tgm.InlineKeyboardButton(text="Go Back", callback_data="start")]]
+        keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id, reply_markup=keyboard_markup)
 
     def send_suggest_by_isbn(self):
 
         self.text_message_handler = self.handle_isbn
-
         text = "Enter the ISBN of your book."
-        buttons = [[("Go Back", "botm_suggest")]]
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": text,
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        button = tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id, reply_markup=keyboard_markup)
 
     def send_suggest_by_name(self):
 
         self.text_message_handler = self.handle_name
-
         text = "Enter the name of your book."
-        buttons = [[("Go Back", "botm_suggest")]]
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": text,
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        button = tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id, reply_markup=keyboard_markup)
 
     def send_suggest_raw(self):
 
         self.text_message_handler = self.handle_raw
-
-        text = "Enter the details of your book in the following format\._\nName\nAuthors\nGenres\nNote\n_"
-
-        buttons = [[("Go Back", "botm_suggest")]]
-        keyboard_markup = BookCrushBot.get_buttons_markup(buttons)
-
-        data = {
-            "chat_id": self.chat_id,
-            "message_id": self.base_message_id,
-            "text": text,
-            "parse_mode": "MarkdownV2",
-            "reply_markup": keyboard_markup,
-        }
-
-        BookCrushBot.request(self.url + "/editMessageText", data)
+        text = "Enter the details of your book in the following format._\nName\nAuthors\nGenres\nNote\n_"
+        button = tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
+        self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
+                                   parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def send_welcome(self, edit=False):
 
-        data = self.get_welcome_message()
+        text, keyboard_markup = self.get_welcome_message()
         if edit:
-            data["message_id"] = self.base_message_id
-            BookCrushBot.request(self.url + "/editMessageText", data)
+            self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
+                                  parse_mode="Markdown", reply_markup=keyboard_markup)
         else:
-            self.base_message_id = BookCrushBot.request(
-                self.url + "/sendMessage", data
-            )["message_id"]
+            message = self.bot.send_message(chat_id=self.chat.id, text=text,
+                                            parse_mode="Markdown", reply_markup=keyboard_markup)
+            self.base_message_id = message.message_id
 
     def submit_book(self, ix=0):
 
         book = self.books[ix]
         BookCrushBot.add_botm_suggestion(
-            self.user_id,
+            self.user.id,
             book["isbn"],
             book["name"],
             book["authors"],

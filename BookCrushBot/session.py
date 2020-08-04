@@ -1,23 +1,13 @@
-import time
-import BookCrushBot
-
-
 class Session:
-    def __init__(self, chat, user, time_limit):
+    def __init__(self, bot, chat, user):
 
-        self.chat_id = chat["id"]
-        self.user_id = user["id"]
-        self.url = BookCrushBot.URL
-        self.time_limit = time_limit
-        self.start = time.time()
+        self.bot = bot
+        self.chat = chat
+        self.user = user
 
-    def expire(self, premature=False):
+    def expire(self):
 
         pass
-
-    def has_time_left(self):
-
-        return (time.time() - self.start) < self.time_limit
 
     def respond_message(self, message):
 
