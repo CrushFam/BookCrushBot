@@ -35,6 +35,7 @@ if roulette == "False":
 else:
     ROULETTE = True
 
+PORT = int(os.getenv("PORT"))
 TOKEN = os.getenv("TOKEN") # Token
 
 del botm, filename, roulette

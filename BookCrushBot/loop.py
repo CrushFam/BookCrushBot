@@ -54,8 +54,9 @@ class Loop:
 
     def run(self, poll_interval=1, timeout=1):
 
-        BookCrushBot.logger.info("Started polling")
-        self.updater.start_polling(poll_interval=poll_interval, timeout=timeout, allowed_updates=["message, callback_query"])
+        port = BookCrushBot.PORT
+        BookCrushBot.logger.info("Started server")
+        self.updater.start_webhook(port=port, allowed_updates=["message, callback_query"])
         self.updater.idle()
 
     def send_contact(self, update, context):
