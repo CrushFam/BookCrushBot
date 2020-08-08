@@ -27,7 +27,7 @@ if botm == "False":
 else:
     BOTM = True
 
-BOTM_LIMIT = int(os.getenv("BOTM_LIMIT", "2"))  # How many books for BOTM ?
+BOTM_LIMIT = int(os.getenv("BOTM_LIMIT", "1"))  # How many books for BOTM ?
 
 roulette = os.getenv("ROULETTE", "True")  # Is Roulette open ?
 if roulette == "False":
