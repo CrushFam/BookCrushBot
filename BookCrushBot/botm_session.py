@@ -36,7 +36,7 @@ class BOTMSession(Session):
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
             else:
-                parts.append("To add more books, you need to remove the suggested ones ...")
+                parts.append("\nTo edit your suggestion(s), you need to remove the suggested one(s) and add new one(s)...")
                 buttons.pop(0)
 
         text = "\n".join(parts)
