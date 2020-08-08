@@ -2,23 +2,23 @@ import requests
 import BookCrushBot
 
 
-def add_botm_suggestion(user_id, isbn, name, authors, genres, note):
+def add_botm_suggestion(user_id, username, display_name, isbn, name, authors, genres, note):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute(
-        "INSERT INTO botm VALUES(%s, %s, %s, %s, %s, %s);",
-        (user_id, isbn, name, authors, genres, note),
+        "INSERT INTO botm VALUES(%s, %s, %s, %s, %s, %s, %s, %s);",
+        (user_id, username, display_name, isbn, name, authors, genres, note),
     )
     BookCrushBot.DATABASE.commit()
     cursor.close()
 
 
-def add_to_roulette(user_id, isbn, name, authors, genres, note):
+def add_to_roulette(user_id, username, display_name, isbn, name, authors, genres, note):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute(
-        "INSERT INTO roulette VALUES(%s, %s, %s, %s, %s, %s);",
-        (user_id, isbn, name, authors, genres, note),
+        "INSERT INTO roulette VALUES(%s, %s, %s, %s, %s, %s, %s, %s);",
+        (user_id, username, display_name, isbn, name, authors, genres, note),
     )
     BookCrushBot.DATABASE.commit()
     cursor.close()

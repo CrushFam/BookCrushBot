@@ -222,9 +222,15 @@ class RouletteSession(Session):
 
     def submit_book(self, ix=0):
 
+        username = self.user.username if self.user.username else "-"
+        firstname = self.user.first_name if self.user.first_name else "-"
+        lastname = self.user.last_name if self.user.last_name else "-"
+        display_name = f"{firstname} {lastname}"
         book = self.books[ix]
         BookCrushBot.add_to_roulette(
             self.user.id,
+            username,
+            display_name,
             book["isbn"],
             book["name"],
             book["authors"],

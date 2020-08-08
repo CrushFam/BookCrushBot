@@ -20,7 +20,8 @@ class BOTMSession(Session):
 
     def get_welcome_message(self):
 
-        parts =[f"*Book Of The Month Portal*\nYou can suggest {BookCrushBot.BOTM_LIMIT} books."]
+        limit = BookCrushBot.BOTM_LIMIT
+        parts =[f"*Book Of The Month Portal*\nYou can suggest {limit} book{'s' * (limit != 1)}."]
         ln = len(self.suggested_books)
         books = enumerate(self.suggested_books)
         buttons = [tgm.InlineKeyboardButton(text="Suggest A Book", callback_data="suggest"),
@@ -204,9 +205,15 @@ class BOTMSession(Session):
 
     def submit_book(self, ix=0):
 
+        username = self.user.username if self.user.username else "-"
+        firstname = self.user.first_name if self.user.first_name else "-"
+        lastname = self.user.last_name if self.user.last_name else "-"
+        display_name = f"{firstname} {lastname}"
         book = self.books[ix]
         BookCrushBot.add_botm_suggestion(
             self.user.id,
+            username,
+            display_name,
             book["isbn"],
             book["name"],
             book["authors"],
