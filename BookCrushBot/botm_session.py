@@ -21,10 +21,7 @@ class BOTMSession(Session):
     def get_welcome_message(self):
 
         limit = BookCrushBot.BOTM_LIMIT
-        parts =[f"*Book Of The Month Portal*\nYou can suggest {limit} book{'s' * (limit != 1)}."]
-
-        parts =[f"*Book Of The Month Portal*\nYou can suggest {BookCrushBot.BOTM_LIMIT} book(s)."]
-
+        parts =[f"*Book Of The Month Portal*\nYou can suggest {limit} book{'s' * (limit != 1)}.\n"]
         ln = len(self.suggested_books)
         books = enumerate(self.suggested_books)
         buttons = [tgm.InlineKeyboardButton(text="Suggest A Book", callback_data="suggest"),
@@ -40,7 +37,6 @@ class BOTMSession(Session):
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
             else:
-                parts.append("\nTo edit your suggestion(s), you need to remove the suggested one(s) and add new one(s)...")
                 buttons.pop(0)
 
         text = "\n".join(parts)
