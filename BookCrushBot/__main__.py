@@ -21,7 +21,7 @@ thread = Thread(target=serverd.serve_forever, daemon=True)
 print("Starting")
 thread.start()
 
-loop = BookCrushBot.Loop()
-loop.run()
+#loop = BookCrushBot.Loop()
+#loop.run()
 
 thread.join()
