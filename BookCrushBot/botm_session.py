@@ -137,11 +137,11 @@ class BOTMSession(Session):
         elif data.startswith("accept_"):
             ix = int(data.lstrip("accept_"))
             self.submit_book(ix)
-            self.send_welcome(edit=True)
+            self.send_welcome()
         elif data.startswith("remove_"):
             name = data.lstrip("remove_")
             self.remove_book(name)
-            self.send_welcome(edit=True)
+            self.send_welcome()
         elif data == "suggest_isbn":
             self.send_suggest_by_isbn()
         elif data == "suggest_name":
