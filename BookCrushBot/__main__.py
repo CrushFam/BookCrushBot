@@ -6,13 +6,14 @@ import BookCrushBot
 class Handler(server.BaseHTTPRequestHandler):
     def do_GET(self):
         print("GET")
-        if self.path == "/":
-            self.send_response(200, "OK")
-            self.end_headers()
+        self.send_response(200, "OK")
+        self.end_headers()
     def do_POST(self):
         print("POST")
         print(self.path)
         print(self.requestline)
+        self.send_response(200, "OK")
+        self.end_headers()
 
 
 serverd = server.HTTPServer(("", BookCrushBot.PORT), Handler)
