@@ -37,6 +37,10 @@ class BOTMSession(Session):
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
             else:
+                sug, prnon = ("suggestion", "it") if ln == 1 else ("suggestions", "them")
+                new = "a new book" if limit == 1 else "new books"
+                footnote = f"\nIf you'd like to edit your {sug}, you can remove {prnon} and suggest {new} instead"
+                parts.append(footnote)
                 buttons.pop(0)
 
         text = "\n".join(parts)
