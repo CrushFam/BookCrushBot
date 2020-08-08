@@ -20,7 +20,7 @@ class BOTMSession(Session):
 
     def get_welcome_message(self):
 
-        parts =[f"*Book Of The Month Portal*\nYou can suggest {BookCrushBot.BOTM_LIMIT} books."]
+        parts =[f"*Book Of The Month Portal*\nYou can suggest {BookCrushBot.BOTM_LIMIT} book(s)."]
         ln = len(self.suggested_books)
         books = enumerate(self.suggested_books)
         buttons = [tgm.InlineKeyboardButton(text="Suggest A Book", callback_data="suggest"),
