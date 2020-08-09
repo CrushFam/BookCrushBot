@@ -31,5 +31,3 @@ Let us dive a little deep in using my abilities.
 
  2. Books can not be directly removed from _Roulette_ additions, as long lists may flood the chat. So, to prevent showing all entries, you are required to enter the name of the book. It need not be exact name, it can be a keyword of the title.
   All the books matching the term will be presented to you and you can continue as you would do in _BOTM_'s removal panel.
-
-Since a message rewritten in a session, it is quite possible that the chat becomes difficult to follow. In such a case, start a new session.

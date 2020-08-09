@@ -32,6 +32,9 @@ class Loop:
 
     def handle_message(self, update, context):
 
+        if not update.effective_user:
+            BookCrushBot.logger.info("Got ping to stay awake")
+            return
         user_id = update.effective_user.id
         try:
             session = self.sessions[user_id]
@@ -52,12 +55,12 @@ class Loop:
         else:
             session.respond_query(update.callback_query)
 
-    def run(self, poll_interval=1, timeout=1):
+    def run(self):
 
         port = BookCrushBot.PORT
         token = BookCrushBot.TOKEN
         BookCrushBot.logger.info("Started server")
-        self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token) # allowed_updates=["message, callback_query"])
+        self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token, allowed_updates=["message", "channel_post", "callback_query"])
         self.updater.bot.set_webhook(f"https://bookcrush-bot.herokuapp.com/{token}")
         self.updater.idle()
 

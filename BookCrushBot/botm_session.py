@@ -32,14 +32,14 @@ class BOTMSession(Session):
             buttons.pop(1)
         else:
             parts.append("You have suggested the following books :")
-            parts.extend((f"  {i+1}. *{name}*\n   -_{authors}_\n" for (i, (name, authors)) in books))
+            parts.extend((f"  {i+1}. *{name}*\n   _{authors}_\n" for (i, (name, authors)) in books))
             if ln < BookCrushBot.BOTM_LIMIT:
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
             else:
                 sug, prnon = ("suggestion", "it") if ln == 1 else ("suggestions", "them")
                 new = "a new book" if limit == 1 else "new books"
-                footnote = f"\nIf you'd like to edit your {sug}, you can remove {prnon} and suggest {new} instead"
+                footnote = f"\nIf you'd like to edit your {sug}, you can remove {prnon} and suggest {new} instead."
                 parts.append(footnote)
                 buttons.pop(0)
 
