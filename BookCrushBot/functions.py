@@ -89,8 +89,10 @@ def get_book_by_raw(text):
 def get_botm_suggestions(user_id):
 
     cursor = BookCrushBot.DATABASE.cursor()
-    cursor.execute("SELECT name FROM botm WHERE user_id=%s;", (user_id,))
-    return [row[0] for row in cursor]
+    cursor.execute("SELECT name, authors FROM botm WHERE user_id=%s;", (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
 
 
 def get_roulette_additions_count(user_id):
@@ -105,8 +107,10 @@ def get_roulette_additions_count(user_id):
 def get_roulette_additions(user_id):
 
     cursor = BookCrushBot.DATABASE.cursor()
-    cursor.execute("SELECT name FROM roulette WHERE user_id=%s;", (user_id,))
-    return [row[0] for row in cursor]
+    cursor.execute("SELECT name, authors FROM roulette WHERE user_id=%s;", (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
 
 
 def remove_botm_suggestion(user_id, name):

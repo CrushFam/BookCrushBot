@@ -32,7 +32,7 @@ class BOTMSession(Session):
             buttons.pop(1)
         else:
             parts.append("You have suggested the following books :")
-            parts.extend((f"  {i+1}. _{name}_" for (i, name) in books))
+            parts.extend((f"  {i+1}. *{name}*\n   -_{authors}_\n" for (i, (name, authors)) in books))
             if ln < BookCrushBot.BOTM_LIMIT:
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
@@ -110,10 +110,10 @@ class BOTMSession(Session):
         self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
                               parse_mode="Markdown", reply_markup=keyboard_markup)
 
-    def remove_book(self, name):
+    def remove_book(self, ix=0):
 
+        (name, _) = self.suggested_books.pop(ix)
         BookCrushBot.remove_botm_suggestion(self.user.id, name)
-        self.suggested_books.remove(name)
 
     def respond_message(self, message):
 
@@ -139,8 +139,8 @@ class BOTMSession(Session):
             self.submit_book(ix)
             self.send_welcome()
         elif data.startswith("remove_"):
-            name = data.lstrip("remove_")
-            self.remove_book(name)
+            ix = int(data.lstrip("remove_"))
+            self.remove_book(ix)
             self.send_welcome()
         elif data == "suggest_isbn":
             self.send_suggest_by_isbn()
@@ -154,7 +154,8 @@ class BOTMSession(Session):
     def send_remove(self):
 
         text = "Choose the book you want to *remove*. Please be aware that you *can not undo* the removal."
-        buttons = [tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{name}") for name in self.suggested_books]
+        books = enumerate(self.suggested_books)
+        buttons = [tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{i}") for (i, (name, _))  in books]
         buttons.append(tgm.InlineKeyboardButton(text="Go Back", callback_data="start"))
         keyboard_markup = tgm.InlineKeyboardMarkup.from_column(buttons)
         self.bot.edit_message_text(text=text, chat_id=self.chat.id, message_id=self.base_message_id,
@@ -223,5 +224,5 @@ class BOTMSession(Session):
             book["genres"],
             book["note"],
         )
-        self.suggested_books.append(book["name"])
+        self.suggested_books.append((book["name"], book["authors"]))
         self.books = []
