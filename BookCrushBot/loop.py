@@ -61,7 +61,7 @@ class Loop:
         token = BookCrushBot.TOKEN
         BookCrushBot.logger.info("Started server")
         self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token, allowed_updates=["message", "channel_post", "callback_query"])
-        self.updater.bot.set_webhook(f"https://bookcrush-bot.herokuapp.com/{token}")
+        self.updater.bot.set_webhook(f"https://bookcrush-dev-bot.herokuapp.com/{token}")
         self.updater.idle()
 
     def send_contact(self, update, context):
