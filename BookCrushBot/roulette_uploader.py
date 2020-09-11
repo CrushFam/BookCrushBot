@@ -13,7 +13,7 @@ if not username.strip():
 
 connection = psycopg2.connect(username=username, password=password, database=database)
 cursor = connection.cursor()
-cursor.execute("SELECT display_name, name, authors, genre FROM roulette")
+cursor.execute("SELECT display_name, name, authors, genre FROM roulette;")
 
 gc = gspread.service_account()
 sheets = gc.open("Book_Roulette")
@@ -29,7 +29,7 @@ rows = [
         "",  # GR Rating
         "",  # Page Count
         "",  # Year Published
-        date,  # Date Added
+        datetime.datetime.today(),  # Date Added
         "",  # Additional Authors
         row[0],  # Added by
     ]
