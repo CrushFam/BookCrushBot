@@ -10,16 +10,20 @@ from .roulette_session import RouletteSession
 
 filename = os.getenv("FILE", None)
 if filename:
-    logging.basicConfig(filename=filename,
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO)
+    logging.basicConfig(
+        filename=filename,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
 else:
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO)
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
 
 logger = logging.getLogger()
 
-DATABASE = psycopg2.connect(os.getenv("DATABASE_URL")) # (user="root", password="root")
+DATABASE = psycopg2.connect(os.getenv("DATABASE_URL"))  # (user="root", password="root")
 
 botm = os.getenv("BOTM", "True")  # Is BOTM open ?
 if botm == "False":
@@ -36,6 +40,6 @@ else:
     ROULETTE = True
 
 PORT = int(os.getenv("PORT"))
-TOKEN = os.getenv("TOKEN") # Token
+TOKEN = os.getenv("TOKEN")  # Token
 
 del botm, filename, roulette

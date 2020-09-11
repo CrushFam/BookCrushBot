@@ -1,18 +1,33 @@
-from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, MessageHandler, Updater
+from telegram.ext import (
+    CallbackQueryHandler,
+    CommandHandler,
+    Filters,
+    MessageHandler,
+    Updater,
+)
 import BookCrushBot
 
 
 class Loop:
     def __init__(self):
 
-        self.updater = Updater(token=BookCrushBot.TOKEN, use_context=True, user_sig_handler=self.stop)
+        self.updater = Updater(
+            token=BookCrushBot.TOKEN, use_context=True, user_sig_handler=self.stop
+        )
         self.dispatcher = self.updater.dispatcher
         self.sessions = {}
 
-        handlers = [("start", self.send_start), ("contact", self.send_contact),
-                    ("guide", self.send_guide), ("help", self.send_help),
-                    ("botm", self.start_botm), ("roulette", self.start_roulette)]
-        message_handler = MessageHandler(Filters.text & (~Filters.command), self.handle_message)
+        handlers = [
+            ("start", self.send_start),
+            ("contact", self.send_contact),
+            ("guide", self.send_guide),
+            ("help", self.send_help),
+            ("botm", self.start_botm),
+            ("roulette", self.start_roulette),
+        ]
+        message_handler = MessageHandler(
+            Filters.text & (~Filters.command), self.handle_message
+        )
         callback_handler = CallbackQueryHandler(self.handle_query)
 
         for command, func in handlers:
@@ -57,7 +72,9 @@ class Loop:
         port = BookCrushBot.PORT
         token = BookCrushBot.TOKEN
         BookCrushBot.logger.info("Started server")
-        self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token) # allowed_updates=["message, callback_query"])
+        self.updater.start_webhook(
+            listen="0.0.0.0", port=port, url_path=token
+        )  # allowed_updates=["message, callback_query"])
         self.updater.bot.set_webhook(f"https://bookcrush-bot.herokuapp.com/{token}")
         self.updater.idle()
 
@@ -87,7 +104,9 @@ class Loop:
         name = f"{first} {last}"
         botm = "open" if BookCrushBot.BOTM else "closed"
         roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
-        text = open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
+        text = (
+            open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
+        )
         chat_id = update.effective_chat.id
         context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
 

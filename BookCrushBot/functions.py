@@ -2,7 +2,9 @@ import requests
 import BookCrushBot
 
 
-def add_botm_suggestion(user_id, username, display_name, isbn, name, authors, genres, note):
+def add_botm_suggestion(
+    user_id, username, display_name, isbn, name, authors, genres, note
+):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute(
@@ -129,7 +131,8 @@ def search_roulette_books(user_id, keyword):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute(
-        "SELECT name, authors FROM roulette WHERE user_id=%s AND name ILIKE %s;", (user_id, f"%{keyword}%")
+        "SELECT name, authors FROM roulette WHERE user_id=%s AND name ILIKE %s;",
+        (user_id, f"%{keyword}%"),
     )
     result = cursor.fetchall()
     cursor.close()
