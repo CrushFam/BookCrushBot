@@ -82,8 +82,9 @@ class RouletteSession(Session):
             ]
         ]
 
+        parts = []
         if books:
-            parts = [f"We have found the following books."]
+            parts.append(f"We have found the following books.")
             for i, book in enumerate(books):
                 name = book["name"]
                 authors = book["authors"]
