@@ -66,7 +66,7 @@ class Loop:
         try:
             session = self.sessions[user_id]
         except KeyError:
-            BookCrushBot.logger.warning(f"Orphan query : {update.query.data}")
+            BookCrushBot.logger.warning(f"Orphan query : {update.callback_query.data}")
         else:
             session.respond_query(update.callback_query)
 
