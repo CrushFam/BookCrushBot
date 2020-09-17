@@ -37,7 +37,7 @@ class BOTMSession(Session):
             parts.append("You have not suggested any book. Let's get started now !")
             buttons.pop(1)
         else:
-            parts.append("You have suggested the following book{'s' * (ln != 1)} :")
+            parts.append(f"You have suggested the following book{'s' * (ln != 1)} :")
             parts.extend(
                 (
                     f"  {i+1}. *{name}*\n   _{authors}_\n"
