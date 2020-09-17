@@ -79,7 +79,7 @@ def get_book_by_raw(text):
     elif len(text) != 4:
         return {}
     data = {
-        "isbn": 0,
+        "isbn": "0",
         "name": text[0],
         "authors": text[1],
         "genres": text[2],
