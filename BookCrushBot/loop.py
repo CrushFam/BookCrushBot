@@ -142,7 +142,7 @@ class Loop:
             session = ReviewSession(chat, user)
             self.sessions[user.id] = session
         else:
-            text = "Sorry reviews are not accepted now."
+            text = "Sorry, reviews are not accepted now."
             context.bot.send_message(chat_id=chat.id, text=text)
 
     def start_roulette(self, update, context):
