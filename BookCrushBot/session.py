@@ -18,7 +18,7 @@ class Session:
 
     def expire(self, keep_text=True):
 
-        if keep_text:
+        if keep_text and self.base_message.reply_markup:
             self.base_message.edit_reply_markup(reply_markup=None)
         else:
             text = "You have started another session. So this one expired."
