@@ -57,7 +57,7 @@ class ReviewSession(Session):
         button = tgm.InlineKeyboardButton(text="Back", callback_data="start")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
         self.expire()
-        self.chat.send_message(text=text, reply_markup=keyboard_markup, parse_mode="HTML")
+        self.base_message = self.chat.send_message(text=text, reply_markup=keyboard_markup, parse_mode="HTML")
 
     def submit_book(self, ix=0):
 
