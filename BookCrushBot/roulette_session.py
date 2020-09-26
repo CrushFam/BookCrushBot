@@ -67,7 +67,7 @@ class RouletteSession(Session):
         name = self.search_results[ix]
         remove_roulette_addition(self.user.id, name)
         self.books_count -= 1
-        self.send_welcome()
+        self.send_welcome(edit=False)
 
     def respond_message(self, message):
 
@@ -103,4 +103,4 @@ class RouletteSession(Session):
         )
         self.books_count += 1
         self.books = []
-        self.send_welcome()
+        self.send_welcome(edit=False)
