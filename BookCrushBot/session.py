@@ -191,7 +191,16 @@ class Session:
 
     def send_welcome(self, edit=True):
 
-        pass
+        text, keyboard_markup = self.get_welcome_message()
+        if edit:
+            self.base_message.edit_text(
+                text=text, parse_mode="Markdown", reply_markup=keyboard_markup
+            )
+        else:
+            message = self.chat.send_message(
+                text=text, parse_mode="Markdown", reply_markup=keyboard_markup,
+            )
+            self.base_message = message
 
     def submit_book(self, ix):
 

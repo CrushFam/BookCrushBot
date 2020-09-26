@@ -8,7 +8,7 @@ class ReviewSession(Session):
 
         Session.__init__(self, chat, user)
         self.book = None
-        self.send_welcome()
+        self.send_welcome(edit=False)
 
     def get_welcome_message(self):
 
