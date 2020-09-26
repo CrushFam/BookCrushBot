@@ -26,6 +26,7 @@ class Loop:
             ("guide", self.send_guide),
             ("help", self.send_help),
             ("botm", self.start_botm),
+            ("review", self.start_review),
             ("roulette", self.start_roulette),
         ]
         message_handler = MessageHandler(Filters.text & (~Filters.command), self.handle_message)
