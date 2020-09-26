@@ -13,6 +13,17 @@ def add_botm_suggestion(user_id, username, display_name, isbn, name, authors, ge
     cursor.close()
 
 
+def add_to_reviews(user_id, username, display_name, isbn, name, authors, genres, note, review):
+
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute(
+        "INSERT INTO reviews VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
+        (user_id, username, display_name, isbn, name, authors, genres, note, review),
+    )
+    BookCrushBot.DATABASE.commit()
+    cursor.close()
+
+
 def add_to_roulette(user_id, username, display_name, isbn, name, authors, genres, note):
 
     cursor = BookCrushBot.DATABASE.cursor()

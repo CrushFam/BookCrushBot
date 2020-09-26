@@ -19,6 +19,12 @@ else:
 
 BOTM_LIMIT = int(os.getenv("BOTM_LIMIT", "1"))  # How many books for BOTM ?
 
+review = os.getenv("REVIEWS", "True")  # Is reviews allowed ?
+if review == "False":
+    REVIEW = False
+else:
+    REVIEW = True
+
 roulette = os.getenv("ROULETTE", "True")  # Is Roulette open ?
 if roulette == "False":
     ROULETTE = False
@@ -28,4 +34,4 @@ else:
 PORT = int(os.getenv("PORT"))
 TOKEN = os.getenv("TOKEN")  # Token
 
-del botm, roulette
+del botm, review, roulette

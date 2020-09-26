@@ -7,6 +7,7 @@ from telegram.ext import (
 )
 import BookCrushBot
 from .botm_session import BOTMSession
+from .review_session import ReviewSession
 from .roulette_session import RouletteSession
 
 
@@ -127,6 +128,20 @@ class Loop:
             self.sessions[user.id] = session
         else:
             text = "Sorry Book Of The Month suggestions are closed."
+            context.bot.send_message(chat_id=chat.id, text=text)
+
+    def start_review(self, update, context):
+
+        user = update.effective_user
+        chat = update.effective_chat
+
+        self.flush_session(user.id)
+
+        if BookCrushBot.REVIEW:
+            session = ReviewSession(chat, user)
+            self.sessions[user.id] = session
+        else:
+            text = "Sorry reviews are not accepted now."
             context.bot.send_message(chat_id=chat.id, text=text)
 
     def start_roulette(self, update, context):
