@@ -1,4 +1,4 @@
-import BookCrushBot
+from .loop import Loop
 
-loop = BookCrushBot.Loop()
+loop = Loop()
 loop.run()

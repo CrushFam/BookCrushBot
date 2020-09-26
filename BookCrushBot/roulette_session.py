@@ -1,29 +1,39 @@
 import telegram as tgm
 import BookCrushBot
+from .functions import (
+    add_to_roulette,
+    get_book_by_isbn,
+    get_book_by_name,
+    get_book_by_raw,
+    get_roulette_additions_count,
+    remove_roulette_addition,
+    search_roulette_books,
+)
 from .session import Session
 
 
 class RouletteSession(Session):
-    def __init__(self, bot, chat, user):
-        Session.__init__(self, bot, chat, user)
-        self.base_message_id = None
-        self.books_count = BookCrushBot.get_roulette_additions_count(self.user.id)
+    def __init__(self, chat, user):
+        Session.__init__(self, chat, user)
+        self.base_message = None
+        self.books_count = get_roulette_additions_count(self.user.id)
         self.books = []
         self.search_results = []
         self.text_message_handler = None
         self.send_welcome()
 
-    def expire(self):
+    def expire(self, keep_text=True):
 
-        text = "You have started another session. So this one expired."
-        self.bot.edit_message_text(
-            text=text, chat_id=self.chat.id, message_id=self.base_message_id
-        )
+        if keep_text:
+            self.base_message.edit_reply_markup()
+        else:
+            text = "You have started another session. So this one expired."
+            self.base_message.edit_text(text=text)
         BookCrushBot.DATABASE.commit()
 
     def get_welcome_message(self):
 
-        parts = [f"*Roulette Portal*\nIdeally there is no limit !"]
+        parts = ["*Roulette Portal*\nIdeally there is no limit !"]
         ln = self.books_count
         buttons = [tgm.InlineKeyboardButton(text="Add A Book", callback_data="add")]
 
@@ -31,11 +41,7 @@ class RouletteSession(Session):
             parts.append("You have not added any book. Isn't this the perfect moment ?")
         else:
             parts.append(f"You have added {ln} book{'s' * (ln != 1)}.")
-            buttons.append(
-                tgm.InlineKeyboardButton(
-                    text="Remove Additions", callback_data="remove"
-                )
-            )
+            buttons.append(tgm.InlineKeyboardButton(text="Remove Additions", callback_data="remove"))
 
         text = "\n".join(parts)
         keyboard_markup = tgm.InlineKeyboardMarkup.from_row(buttons)
@@ -43,7 +49,7 @@ class RouletteSession(Session):
 
     def handle_isbn(self, text):
 
-        book = BookCrushBot.get_book_by_isbn(text)
+        book = get_book_by_isbn(text)
         buttons = [
             [
                 tgm.InlineKeyboardButton(text="Try again", callback_data="add_isbn"),
@@ -55,25 +61,19 @@ class RouletteSession(Session):
             name = book["name"]
             authors = book["authors"]
             text = f"ISBN : {book['isbn']}\n*{name}* by _{authors}_"
-            buttons.insert(
-                0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")]
-            )
+            buttons.insert(0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")])
             self.books = [book]
         else:
             text = "Oops. We can't find a book matching the ISBN."
 
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            parse_mode="Markdown",
-            reply_markup=keyboard_markup,
+        self.base_message.edit_text(
+            text=text, parse_mode="Markdown", reply_markup=keyboard_markup,
         )
 
     def handle_name(self, text):
 
-        books = BookCrushBot.get_book_by_name(text)
+        books = get_book_by_name(text)
         url = f"http://openlibrary.org/search?title={text.replace(' ', '+')}"
         buttons = [
             [
@@ -84,18 +84,13 @@ class RouletteSession(Session):
 
         parts = []
         if books:
-            parts.append(f"We have found the following books.")
+            parts.append("We have found the following books.")
             for i, book in enumerate(books):
                 name = book["name"]
                 authors = book["authors"]
                 parts.append(f"{i+1}. ISBN : {book['isbn']}\n*{name}* by _{authors}_\n")
                 buttons.insert(
-                    i,
-                    [
-                        tgm.InlineKeyboardButton(
-                            text=book["name"], callback_data=f"accept_{i}"
-                        )
-                    ],
+                    i, [tgm.InlineKeyboardButton(text=book["name"], callback_data=f"accept_{i}")],
                 )
             parts.append("Not the one you are looking for ?")
             self.books = books
@@ -105,10 +100,8 @@ class RouletteSession(Session):
         parts.append(f"Please try [narrowing]({url}) your search.")
         text = "\n".join(parts)
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.bot.edit_message_text(
+        self.base_message.edit_text(
             text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
             parse_mode="Markdown",
             reply_markup=keyboard_markup,
             disable_web_page_preview=True,
@@ -116,7 +109,7 @@ class RouletteSession(Session):
 
     def handle_raw(self, text):
 
-        book = BookCrushBot.get_book_by_raw(text)
+        book = get_book_by_raw(text)
         buttons = [
             [
                 tgm.InlineKeyboardButton(text="Try again", callback_data="add_raw"),
@@ -128,27 +121,17 @@ class RouletteSession(Session):
             name = book["name"]
             authors = book["authors"]
             text = f"**{name}** by *{authors}*"
-            buttons.insert(
-                0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")]
-            )
+            buttons.insert(0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")])
             self.books = [book]
         else:
-            text = (
-                "Your message doesn't match the given format. Did you miss something ?"
-            )
+            text = "Your message doesn't match the given format. Did you miss something ?"
 
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            parse_mode="Markdown",
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def handle_search(self, keyword):
 
-        books = BookCrushBot.search_roulette_books(self.user.id, keyword)
+        books = search_roulette_books(self.user.id, keyword)
         buttons = [
             [
                 tgm.InlineKeyboardButton(text="Try again", callback_data="remove"),
@@ -166,30 +149,21 @@ class RouletteSession(Session):
             for i, (name, authors) in enumerate(books):
                 parts.append(f"{i+1}. *{name}* by _{authors}_")
                 buttons.insert(
-                    0,
-                    [tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{i}")],
+                    0, [tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{i}")],
                 )
                 self.search_results.append(name)
             parts.append("Cannot find the book ? Try again with a suitable keyword !")
         else:
-            parts.append(
-                "Sorry we can't find any book matching the keyword. Why not try again ?"
-            )
+            parts.append("Sorry we can't find any book matching the keyword. Why not try again ?")
 
         text = "\n".join(parts)
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            parse_mode="Markdown",
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def remove_book(self, ix):
 
         name = self.search_results[ix]
-        BookCrushBot.remove_roulette_addition(self.user.id, name)
+        remove_roulette_addition(self.user.id, name)
         self.books_count -= 1
 
     def respond_message(self, message):
@@ -197,14 +171,12 @@ class RouletteSession(Session):
         if self.text_message_handler:
             self.text_message_handler(message["text"])
         else:
-            self.bot.send_message_text(
-                chat_id=self.chat.id, text="Please respond by the above buttons."
-            )
+            self.chat.send_message_text(text="Please respond by the above buttons.")
 
     def respond_query(self, query):
 
         data = query.data
-        self.bot.answer_callback_query(callback_query_id=query.id)
+        query.answer(callback_query_id=query.id)
         self.text_message_handler = None
 
         if data == "start":
@@ -228,7 +200,7 @@ class RouletteSession(Session):
         elif data == "add_raw":
             self.send_add_raw()
         else:
-            BookCrushBot.logger.warning(f"Unexpected roulette query : {data}")
+            BookCrushBot.logger.warning("Unexpected roulette query : %s", data)
 
     def send_add(self):
 
@@ -242,12 +214,7 @@ class RouletteSession(Session):
             [tgm.InlineKeyboardButton(text="Go Back", callback_data="start")],
         ]
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, reply_markup=keyboard_markup)
 
     def send_add_by_isbn(self):
 
@@ -255,12 +222,7 @@ class RouletteSession(Session):
         text = "Enter the ISBN of your book."
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="add")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, reply_markup=keyboard_markup)
 
     def send_add_by_name(self):
 
@@ -268,12 +230,7 @@ class RouletteSession(Session):
         text = "Enter the name of your book."
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="add")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, reply_markup=keyboard_markup)
 
     def send_add_raw(self):
 
@@ -281,13 +238,7 @@ class RouletteSession(Session):
         text = "Enter the details of your book in the following format._\nName\nAuthors\nGenres\nNote\n_"
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="add")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            parse_mode="Markdown",
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def send_remove(self):
 
@@ -295,42 +246,29 @@ class RouletteSession(Session):
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="start")
         self.text_message_handler = self.handle_search
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
-        self.bot.edit_message_text(
-            text=text,
-            chat_id=self.chat.id,
-            message_id=self.base_message_id,
-            parse_mode="Markdown",
-            reply_markup=keyboard_markup,
-        )
+        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
 
     def send_welcome(self, edit=False):
 
         text, keyboard_markup = self.get_welcome_message()
         if edit:
-            self.bot.edit_message_text(
-                text=text,
-                chat_id=self.chat.id,
-                message_id=self.base_message_id,
-                parse_mode="Markdown",
-                reply_markup=keyboard_markup,
+            self.base_message.edit_text(
+                text=text, parse_mode="Markdown", reply_markup=keyboard_markup
             )
         else:
-            message = self.bot.send_message(
-                chat_id=self.chat.id,
-                text=text,
-                parse_mode="Markdown",
-                reply_markup=keyboard_markup,
+            message = self.chat.send_message(
+                text=text, parse_mode="Markdown", reply_markup=keyboard_markup
             )
-            self.base_message_id = message.message_id
+            self.base_message = message
 
     def submit_book(self, ix=0):
 
-        username = self.user.username if self.user.username else "-"
-        firstname = self.user.first_name if self.user.first_name else "-"
-        lastname = self.user.last_name if self.user.last_name else "-"
+        username = self.user.username if self.user.username else ""
+        firstname = self.user.first_name if self.user.first_name else ""
+        lastname = self.user.last_name if self.user.last_name else ""
         display_name = f"{firstname} {lastname}"
         book = self.books[ix]
-        BookCrushBot.add_to_roulette(
+        add_to_roulette(
             self.user.id,
             username,
             display_name,

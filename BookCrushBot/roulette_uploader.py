@@ -4,7 +4,7 @@ import gspread
 import psycopg2
 
 default_user = getpass.getuser()
-username = input(f"Enter database username [default_user] :")
+username = input(f"Enter database username [{default_user}] :")
 password = getpass.getpass()
 database = input("Enter database name :")
 

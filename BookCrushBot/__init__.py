@@ -1,25 +1,11 @@
 import logging
 import os
-import psycopg2
 import sys
+import psycopg2
 
-from .botm_session import BOTMSession
-from .functions import *
-from .loop import Loop
-from .roulette_session import RouletteSession
-
-filename = os.getenv("FILE", None)
-if filename:
-    logging.basicConfig(
-        filename=filename,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.INFO,
-    )
-else:
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.INFO,
-    )
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO,
+)
 
 logger = logging.getLogger()
 
@@ -42,4 +28,4 @@ else:
 PORT = int(os.getenv("PORT"))
 TOKEN = os.getenv("TOKEN")  # Token
 
-del botm, filename, roulette
+del botm, roulette

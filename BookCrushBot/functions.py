@@ -2,9 +2,7 @@ import requests
 import BookCrushBot
 
 
-def add_botm_suggestion(
-    user_id, username, display_name, isbn, name, authors, genres, note
-):
+def add_botm_suggestion(user_id, username, display_name, isbn, name, authors, genres, note):
 
     cursor = BookCrushBot.DATABASE.cursor()
     cursor.execute(

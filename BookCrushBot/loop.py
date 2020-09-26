@@ -6,6 +6,8 @@ from telegram.ext import (
     Updater,
 )
 import BookCrushBot
+from .botm_session import BOTMSession
+from .roulette_session import RouletteSession
 
 
 class Loop:
@@ -25,9 +27,7 @@ class Loop:
             ("botm", self.start_botm),
             ("roulette", self.start_roulette),
         ]
-        message_handler = MessageHandler(
-            Filters.text & (~Filters.command), self.handle_message
-        )
+        message_handler = MessageHandler(Filters.text & (~Filters.command), self.handle_message)
         callback_handler = CallbackQueryHandler(self.handle_query)
 
         for command, func in handlers:
@@ -63,21 +63,20 @@ class Loop:
     def handle_query(self, update, context):
 
         user_id = update.effective_user.id
+        query = update.callback_query
         try:
             session = self.sessions[user_id]
         except KeyError:
-            BookCrushBot.logger.warning(f"Orphan query : {update.callback_query.data}")
+            BookCrushBot.logger.warning("Orphan query : %s", query.data)
         else:
-            session.respond_query(update.callback_query)
+            session.respond_query(query)
 
     def run(self):
 
         port = BookCrushBot.PORT
         token = BookCrushBot.TOKEN
         BookCrushBot.logger.info("Started server")
-        self.updater.start_webhook(
-            listen="0.0.0.0", port=port, url_path=token
-        )  # allowed_updates=["message, callback_query"])
+        self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token)
         self.updater.start_webhook(
             listen="0.0.0.0",
             port=port,
@@ -113,9 +112,7 @@ class Loop:
         name = f"{first} {last}"
         botm = "open" if BookCrushBot.BOTM else "closed"
         roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
-        text = (
-            open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
-        )
+        text = open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
         chat_id = update.effective_chat.id
         context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
 
@@ -126,7 +123,7 @@ class Loop:
         self.flush_session(user.id)
 
         if BookCrushBot.BOTM:
-            session = BookCrushBot.BOTMSession(context.bot, user, chat)
+            session = BOTMSession(chat, user)
             self.sessions[user.id] = session
         else:
             text = "Sorry Book Of The Month suggestions are closed."
@@ -140,7 +137,7 @@ class Loop:
         self.flush_session(user.id)
 
         if BookCrushBot.ROULETTE:
-            session = BookCrushBot.RouletteSession(context.bot, user, chat)
+            session = RouletteSession(chat, user)
             self.sessions[user.id] = session
         else:
             text = "Sorry Roulette suggestions are closed."
