@@ -2,6 +2,7 @@ Hey there *{NAME}* !
 
 *Did you know ?*
   ∙ Suggestions for book of the month (_BOTM_) is *{BOTM}*.
+  ∙ You *{REVIEW}* your review the books you have read this month.
   ∙ _Roulette_ is *{ROULETTE}* new books.
 
 The topic in our trend is *Short Stories September*.

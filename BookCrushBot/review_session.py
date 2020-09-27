@@ -13,7 +13,7 @@ class ReviewSession(Session):
     def get_welcome_message(self):
 
         parts = [
-            "<b>Did you read a new book ?</b> Share with us what you feel what about it !\n",
+            "<b>Did you read a new book ?</b> Share with us what you feel about it !\n",
         ]
 
         books = enumerate(get_reviewed_books(self.user.id))
