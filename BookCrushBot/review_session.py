@@ -12,15 +12,15 @@ class ReviewSession(Session):
 
     def get_welcome_message(self):
 
-        splits = [
-            "Did you read a new book ? Share with us what you feel what about it !\n",
+        parts = [
+            "Did you read a new book ? Share with us what you feel what about it !",
             "First choose your book and then you can write the review.",
         ]
 
         books = get_reviewed_books(self.user.id)
         if books:
-            splits.append("You have reviewed the following books :\n")
-            splits.extend(
+            parts.append("You have reviewed the following books :")
+            parts.extend(
                 (f"  {i+1}. <b>{name}</b>\n   <i>{authors}</i>\n" for (i, (name, authors)) in books)
             )
 
@@ -32,6 +32,7 @@ class ReviewSession(Session):
             ],
             [tgm.InlineKeyboardButton(text="Go Back", callback_data="start")],
         ]
+        text = "\n".join(parts)
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
 
         return text, keyboard_markup
@@ -39,9 +40,13 @@ class ReviewSession(Session):
     def handle_review(self, review):
 
         review_ = review.strip()
+        ln = len(review_.split())
 
-        if len(review_.split()) < 12:
+        if ln < 1:
             text = "That was too short. Add something extra. Use the <i>story writing</i> trick we use in exam !"
+            self.text_message_handler = self.handle_review
+        elif ln > 12:
+            text = "That was too big. Can you shorten it please ?"
             self.text_message_handler = self.handle_review
         else:
             username = self.user.username if self.user.username else ""
@@ -64,7 +69,9 @@ class ReviewSession(Session):
         button = tgm.InlineKeyboardButton(text="Back", callback_data="start")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
         self.expire()
-        self.base_message = self.chat.send_message(text=text, reply_markup=keyboard_markup, parse_mode="HTML")
+        self.base_message = self.chat.send_message(
+            text=text, reply_markup=keyboard_markup, parse_mode="HTML"
+        )
 
     def submit_book(self, ix=0):
 
@@ -72,7 +79,7 @@ class ReviewSession(Session):
         self.text_message_handler = self.handle_review
         text = (
             "Awesome. Now tell me how the book was ?\n"
-            "Protip from Gold Fish of Qeden : A short and sweet review catches eye of the reader.\n"
+            "Tip : <i>A short and sweet review within 12 words catches the eye of reader</i>.\n"
         )
         button = tgm.InlineKeyboardButton(text="Back", callback_data="start")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)

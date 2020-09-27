@@ -17,7 +17,7 @@ class RouletteSession(Session):
 
     def get_welcome_message(self):
 
-        parts = ["*Roulette Portal*\nIdeally there is no limit !"]
+        parts = ["<b>Roulette Portal</b>\nIdeally there is no limit !"]
         ln = self.books_count
         buttons = [tgm.InlineKeyboardButton(text="Add A Book", callback_data="add")]
 
@@ -45,11 +45,11 @@ class RouletteSession(Session):
 
         if books:
             parts.append(
-                "The following books match the keyword. Choose the book you want to *remove*."
+                "The following books match the keyword. Choose the book you want to <b>remove</b>."
             )
             parts.append("Please be aware that you *can not undo* the removal.")
             for i, (name, authors) in enumerate(books):
-                parts.append(f"{i+1}. *{name}* by _{authors}_")
+                parts.append(f"{i+1}. <b>{name}</b> by <i>{authors}</i>")
                 buttons.insert(
                     0, [tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{i}")],
                 )
@@ -60,7 +60,7 @@ class RouletteSession(Session):
 
         text = "\n".join(parts)
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
+        self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
 
     def remove_book(self, ix):
 
@@ -78,7 +78,7 @@ class RouletteSession(Session):
 
     def send_remove(self):
 
-        text = "Enter the name of the book to find and *remove*. Please be aware that you *can not undo* the removal."
+        text = "Enter the name of the book to find and <b>remove</b>. Please be aware that you <b>can not undo</b> the removal."
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="start")
         self.text_message_handler = self.handle_search
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)

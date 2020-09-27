@@ -18,7 +18,9 @@ class BOTMSession(Session):
     def get_welcome_message(self):
 
         limit = BookCrushBot.BOTM_LIMIT
-        parts = [f"*Book Of The Month Portal*\nYou can suggest {limit} book{'s' * (limit != 1)}.\n"]
+        parts = [
+            f"<b>Book Of The Month Portal</b>\nYou can suggest {limit} book{'s' * (limit != 1)}.\n"
+        ]
         ln = len(self.suggested_books)
         books = enumerate(self.suggested_books)
         buttons = [
@@ -31,7 +33,9 @@ class BOTMSession(Session):
             buttons.pop(1)
         else:
             parts.append(f"You have suggested the following book{'s' * (ln != 1)} :")
-            parts.extend((f"  {i+1}. *{name}*\n   _{authors}_\n" for (i, (name, authors)) in books))
+            parts.extend(
+                (f"  {i+1}. <b>{name}</b>\n   <i>{authors}</i>\n" for (i, (name, authors)) in books)
+            )
             if ln < BookCrushBot.BOTM_LIMIT:
                 more = BookCrushBot.BOTM_LIMIT - ln
                 parts.append(f"{more} more book{'s' * (more != 1)} can be added !")
@@ -54,7 +58,7 @@ class BOTMSession(Session):
 
     def send_remove(self):
 
-        text = "Choose the book you want to *remove*. Please be aware that you *can not undo* the removal."
+        text = "Choose the book you want to <b>remove</b>. Please be aware that you <b>can not undo</b> the removal."
         buttons = [
             tgm.InlineKeyboardButton(text=name, callback_data=f"remove_{name}")
             for name in self.suggested_books
@@ -66,7 +70,7 @@ class BOTMSession(Session):
         ]
         buttons.append(tgm.InlineKeyboardButton(text="Go Back", callback_data="start"))
         keyboard_markup = tgm.InlineKeyboardMarkup.from_column(buttons)
-        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
+        self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
 
     def submit_book(self, ix=0):
 

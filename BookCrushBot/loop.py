@@ -11,6 +11,40 @@ from .review_session import ReviewSession
 from .roulette_session import RouletteSession
 
 
+def send_contact(update, _):
+
+    text = open("data/CONTACT.md").read()
+    chat = update.effective_chat
+    chat.send_message(text=text, parse_mode="Markdown")
+
+
+def send_guide(update, _):
+
+    text = open("data/GUIDE.md").read()
+    chat = update.effective_chat
+    chat.send_message(text=text, parse_mode="Markdown")
+
+
+def send_help(update, _):
+
+    text = open("data/HELP.md").read()
+    chat = update.effective_chat
+    chat.send_message(text=text, parse_mode="Markdown")
+
+
+def send_start(update, _):
+
+    user = update.effective_user
+    first = user.first_name if user.first_name else ""
+    last = user.last_name if user.last_name else ""
+    name = f"{first} {last}"
+    botm = "open" if BookCrushBot.BOTM else "closed"
+    roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
+    text = open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
+    chat = update.effective_chat
+    chat.send_message(text=text, parse_mode="Markdown")
+
+
 class Loop:
     def __init__(self):
 
@@ -21,10 +55,10 @@ class Loop:
         self.sessions = {}
 
         handlers = [
-            ("start", self.send_start),
-            ("contact", self.send_contact),
-            ("guide", self.send_guide),
-            ("help", self.send_help),
+            ("start", send_start),
+            ("contact", send_contact),
+            ("guide", send_guide),
+            ("help", send_help),
             ("botm", self.start_botm),
             ("review", self.start_review),
             ("roulette", self.start_roulette),
@@ -47,7 +81,7 @@ class Loop:
         else:
             session.expire()
 
-    def handle_message(self, update, context):
+    def handle_message(self, update, _):
 
         if not update.effective_user:
             BookCrushBot.logger.info("Got ping to stay awake")
@@ -57,12 +91,12 @@ class Loop:
             session = self.sessions[user_id]
         except KeyError:
             text = "Sorry, I can't get it. Try /help if you are stuck."
-            chat_id = update.effective_chat.id
-            context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+            chat = update.effective_chat
+            chat.send_message(text=text, parse_mode="Markdown")
         else:
             session.respond_message(update.message)
 
-    def handle_query(self, update, context):
+    def handle_query(self, update, _):
 
         user_id = update.effective_user.id
         query = update.callback_query
@@ -88,37 +122,7 @@ class Loop:
         self.updater.bot.set_webhook(f"https://bookcrush-bot.herokuapp.com/{token}")
         self.updater.idle()
 
-    def send_contact(self, update, context):
-
-        text = open("data/CONTACT.md").read()
-        chat_id = update.effective_chat.id
-        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
-
-    def send_guide(self, update, context):
-
-        text = open("data/GUIDE.md").read()
-        chat_id = update.effective_chat.id
-        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
-
-    def send_help(self, update, context):
-
-        text = open("data/HELP.md").read()
-        chat_id = update.effective_chat.id
-        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
-
-    def send_start(self, update, context):
-
-        user = update.effective_user
-        first = user.first_name if user.first_name else ""
-        last = user.last_name if user.last_name else ""
-        name = f"{first} {last}"
-        botm = "open" if BookCrushBot.BOTM else "closed"
-        roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
-        text = open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
-        chat_id = update.effective_chat.id
-        context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
-
-    def start_botm(self, update, context):
+    def start_botm(self, update, _):
 
         user = update.effective_user
         chat = update.effective_chat
@@ -129,9 +133,9 @@ class Loop:
             self.sessions[user.id] = session
         else:
             text = "Sorry Book Of The Month suggestions are closed."
-            context.bot.send_message(chat_id=chat.id, text=text)
+            chat.send_message(text=text)
 
-    def start_review(self, update, context):
+    def start_review(self, update, _):
 
         user = update.effective_user
         chat = update.effective_chat
@@ -143,9 +147,9 @@ class Loop:
             self.sessions[user.id] = session
         else:
             text = "Sorry, reviews are not accepted now."
-            context.bot.send_message(chat_id=chat.id, text=text)
+            chat.send_message(text=text)
 
-    def start_roulette(self, update, context):
+    def start_roulette(self, update, _):
 
         user = update.effective_user
         chat = update.effective_chat
@@ -157,7 +161,7 @@ class Loop:
             self.sessions[user.id] = session
         else:
             text = "Sorry Roulette suggestions are closed."
-            context.bot.send_message(chat_id=chat.id, text=text)
+            chat.send_message(text=text)
 
     def stop(self, *_):
 
