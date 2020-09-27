@@ -75,7 +75,7 @@ class Loop:
     def flush_session(self, user_id):
 
         try:
-            session = self.sessions[user_id]
+            session = self.sessions.pop(user_id)
         except KeyError:
             pass
         else:
