@@ -17,7 +17,7 @@ class ReviewSession(Session):
             "First choose your book and then you can write the review.",
         ]
 
-        books = get_reviewed_books(self.user.id)
+        books = enumerate(get_reviewed_books(self.user.id))
         if books:
             parts.append("You have reviewed the following books :")
             parts.extend(
