@@ -49,7 +49,7 @@ class Session:
             text = "Oops. We can't find a book matching the ISBN."
 
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
+        self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
 
     def handle_name(self, text):
 
@@ -82,7 +82,7 @@ class Session:
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
         self.base_message.edit_text(
             text=text,
-            parse_mode="Markdown",
+            parse_mode="HTML",
             reply_markup=keyboard_markup,
             disable_web_page_preview=True,
         )
@@ -107,7 +107,7 @@ class Session:
             text = "Your message doesn't match the given format. Did you miss something ?"
 
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
-        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
+        self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
 
     def remove_book(self, ix):
 
@@ -187,18 +187,18 @@ class Session:
         text = "Enter the details of your book in the following format._\nName\nAuthors\nGenres\nNote\n_"
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
-        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
+        self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
 
     def send_welcome(self, edit=True):
 
         text, keyboard_markup = self.get_welcome_message()
         if edit:
             self.base_message.edit_text(
-                text=text, parse_mode="Markdown", reply_markup=keyboard_markup
+                text=text, parse_mode="HTML", reply_markup=keyboard_markup
             )
         else:
             message = self.chat.send_message(
-                text=text, parse_mode="Markdown", reply_markup=keyboard_markup,
+                text=text, parse_mode="HTML", reply_markup=keyboard_markup,
             )
             self.base_message = message
 
