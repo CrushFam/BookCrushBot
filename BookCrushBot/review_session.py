@@ -13,8 +13,7 @@ class ReviewSession(Session):
     def get_welcome_message(self):
 
         parts = [
-            "Did you read a new book ? Share with us what you feel what about it !",
-            "First choose your book and then you can write the review.",
+            "<b>Did you read a new book ?</b> Share with us what you feel what about it !\n",
         ]
 
         books = enumerate(get_reviewed_books(self.user.id))
@@ -24,16 +23,15 @@ class ReviewSession(Session):
                 (f"  {i+1}. <b>{name}</b>\n   <i>{authors}</i>\n" for (i, (name, authors)) in books)
             )
 
+        parts.append("First choose your book and then you can write the review.\n")
+
         buttons = [
-            [
                 tgm.InlineKeyboardButton(text="ISBN", callback_data="suggest_isbn"),
                 tgm.InlineKeyboardButton(text="Name", callback_data="suggest_name"),
                 tgm.InlineKeyboardButton(text="Raw", callback_data="suggest_raw"),
-            ],
-            [tgm.InlineKeyboardButton(text="Go Back", callback_data="start")],
         ]
         text = "\n".join(parts)
-        keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_column(buttons)
 
         return text, keyboard_markup
 
