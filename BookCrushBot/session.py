@@ -18,6 +18,8 @@ class Session:
 
     def expire(self, keep_text=True):
 
+        print(self.base_message.text, self.base_message.reply_markup)
+
         if keep_text and self.base_message.reply_markup:
             self.base_message.edit_reply_markup(reply_markup=None)
         else:
