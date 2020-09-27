@@ -1,5 +1,5 @@
 import telegram as tgm
-from .functions import add_to_reviews
+from .functions import add_to_reviews, get_reviewed_books
 from .session import Session
 
 
@@ -12,10 +12,17 @@ class ReviewSession(Session):
 
     def get_welcome_message(self):
 
-        text = (
-            "Did you read a new book ? Share with us what you feel what about it !\n"
-            "First choose your book and then you can write the review."
-        )
+        splits = [
+            "Did you read a new book ? Share with us what you feel what about it !\n",
+            "First choose your book and then you can write the review.",
+        ]
+
+        books = get_reviewed_books(self.user.id)
+        if books:
+            splits.append("You have reviewed the following books :\n")
+            splits.extend(
+                (f"  {i+1}. <b>{name}</b>\n   <i>{authors}</i>\n" for (i, (name, authors)) in books)
+            )
 
         buttons = [
             [

@@ -106,6 +106,15 @@ def get_botm_suggestions(user_id):
     return result
 
 
+def get_reviewed_books(user_id):
+
+    cursor = BookCrushBot.DATABASE.cursor()
+    cursor.execute("SELECT name, authors FROM reviews WHERE user_id=%s;", (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+
 def get_roulette_additions_count(user_id):
 
     cursor = BookCrushBot.DATABASE.cursor()
