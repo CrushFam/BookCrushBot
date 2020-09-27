@@ -31,7 +31,7 @@ class ReviewSession(Session):
                 tgm.InlineKeyboardButton(text="Raw", callback_data="suggest_raw"),
         ]
         text = "\n".join(parts)
-        keyboard_markup = tgm.InlineKeyboardMarkup.from_column(buttons)
+        keyboard_markup = tgm.InlineKeyboardMarkup.from_row(buttons)
 
         return text, keyboard_markup
 
