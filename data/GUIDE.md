@@ -31,3 +31,8 @@ Let us dive a little deep in using my abilities.
 
  2. Books can not be directly removed from _Roulette_ additions, as long lists may flood the chat. So, to prevent showing all entries, you are required to enter the name of the book. It need not be exact name, it can be a keyword of the title.
   All the books matching the term will be presented to you and you can continue as you would do in _BOTM_'s removal panel.
+
+*Writing Review*
+ Reviewing a book can be done in two simple steps.
+ 1. Select the book you want to review. The selection method is the same as that of _BOTM_ and _Roulette_.
+ 2. Write a sharp and snappy review. The current word limit is 12, so make sure your review is within the range.
