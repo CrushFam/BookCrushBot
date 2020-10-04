@@ -5,12 +5,12 @@ Hey there *{NAME}* !
   ∙ You *{REVIEW}* your review the books you have read this month.
   ∙ _Roulette_ is *{ROULETTE}* new books.
 
-The topic in our trend is *Short Stories September*.
- _17 - 19 September_ : Submission of suggestions
- _20 September_ : Poll
- _21 September_ : Start of journey
+Welcome to *Spooktober*.
+ _4 - 6 October_ : Submission of suggestions
+ _7 - 8 October_ : Poll
+ _9 October_ : Start of journey
 
-Make sure your book limits to *50 to 200* pages !
+Make sure your book is *scary* enough !
 
 If you are stuck use /help.
 Thanks.
