@@ -77,7 +77,7 @@ class Session:
         else:
             parts.append("We can't find a book matching the name.")
 
-        parts.append(f"That's not what you want ? Try [narrowing]({url}) your search.")
+        parts.append(f"That's not what you want ? Try <a href='{url}'>narrowing</a> your search.")
         text = "\n".join(parts)
         keyboard_markup = tgm.InlineKeyboardMarkup(buttons)
         self.base_message.edit_text(
@@ -184,7 +184,7 @@ class Session:
     def send_suggest_raw(self):
 
         self.text_message_handler = self.handle_raw
-        text = "Enter the details of your book in the following format._\nName\nAuthors\nGenres\nNote\n_"
+        text = "Enter the details of your book in the following format.<i>\nName\nAuthors\nGenres\nNote\n</i>"
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="suggest")
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
         self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
