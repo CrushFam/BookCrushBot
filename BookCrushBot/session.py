@@ -42,7 +42,7 @@ class Session:
         if book:
             name = book["name"]
             authors = book["authors"]
-            text = f"ISBN : {book['isbn']}\n*{name}* by _{authors}_"
+            text = f"ISBN : {book['isbn']}\n<b>{name}</b> by <i>{authors}</i>"
             buttons.insert(0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")])
             self.books = [book]
         else:
@@ -68,7 +68,7 @@ class Session:
             for i, book in enumerate(books):
                 name = book["name"]
                 authors = book["authors"]
-                parts.append(f"{i+1}. ISBN : {book['isbn']}\n*{name}* by _{authors}_\n")
+                parts.append(f"{i+1}. ISBN : {book['isbn']}\n<i>{name}</i> by <b>{authors}</b>\n")
                 buttons.insert(
                     i, [tgm.InlineKeyboardButton(text=book["name"], callback_data=f"accept_{i}")],
                 )
@@ -100,7 +100,7 @@ class Session:
         if book:
             name = book["name"]
             authors = book["authors"]
-            text = f"**{name}** by *{authors}*"
+            text = f"<b>{name}</b> by <i>{authors}</i>"
             buttons.insert(0, [tgm.InlineKeyboardButton(text="Yes", callback_data="accept_0")])
             self.books = [book]
         else:
