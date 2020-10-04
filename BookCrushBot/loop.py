@@ -41,7 +41,7 @@ def send_start(update, _):
     botm = "open" if BookCrushBot.BOTM else "closed"
     review = "can" if BookCrushBot.REVIEW else "can not"
     roulette = "accepting" if BookCrushBot.ROULETTE else "not accepting"
-    text = open("data/START.md").read().format(NAME=name, BOTM=botm, ROULETTE=roulette)
+    text = open("data/START.md").read().format(NAME=name, BOTM=botm, REVIEW=review, ROULETTE=roulette)
     chat = update.effective_chat
     chat.send_message(text=text, parse_mode="Markdown")
 
