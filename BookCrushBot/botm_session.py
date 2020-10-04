@@ -54,8 +54,7 @@ class BOTMSession(Session):
 
         (name, _) = self.suggested_books.pop(ix)
         remove_botm_suggestion(self.user.id, name)
-        self.expire()
-        self.send_welcome(edit=False)
+        self.send_welcome()
 
     def send_remove(self):
 
