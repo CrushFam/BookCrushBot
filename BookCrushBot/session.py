@@ -64,7 +64,7 @@ class Session:
 
         parts = []
         if books:
-            parts.append(r"We have found the following books\.")
+            parts.append(r"We have found the following books.")
             for i, book in enumerate(books):
                 name = book["name"]
                 authors = book["authors"]
