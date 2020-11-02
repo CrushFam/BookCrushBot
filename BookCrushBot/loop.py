@@ -113,7 +113,6 @@ class Loop:
         port = BookCrushBot.PORT
         token = BookCrushBot.TOKEN
         BookCrushBot.logger.info("Started server")
-        self.updater.start_webhook(listen="0.0.0.0", port=port, url_path=token)
         self.updater.start_webhook(
             listen="0.0.0.0",
             port=port,
