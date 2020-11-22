@@ -13,7 +13,7 @@ class RouletteSession(Session):
         Session.__init__(self, chat, user)
         self.books_count = get_roulette_additions_count(self.user.id)
         self.search_results = []
-        self.send_welcome()
+        self.send_welcome(edit=False)
 
     def get_welcome_message(self):
 
