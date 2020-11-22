@@ -47,7 +47,7 @@ class RouletteSession(Session):
             parts.append(
                 "The following books match the keyword. Choose the book you want to <b>remove</b>."
             )
-            parts.append("Please be aware that you *can not undo* the removal.")
+            parts.append("Please be aware that you <b>can not undo</b> the removal.")
             for i, (name, authors) in enumerate(books):
                 parts.append(f"{i+1}. <b>{name}</b> by <i>{authors}</i>")
                 buttons.insert(
@@ -82,7 +82,7 @@ class RouletteSession(Session):
         button = tgm.InlineKeyboardButton(text="Go Back", callback_data="start")
         self.text_message_handler = self.handle_search
         keyboard_markup = tgm.InlineKeyboardMarkup.from_button(button)
-        self.base_message.edit_text(text=text, parse_mode="Markdown", reply_markup=keyboard_markup)
+        self.base_message.edit_text(text=text, parse_mode="HTML", reply_markup=keyboard_markup)
 
     def submit_book(self, ix=0):
 
