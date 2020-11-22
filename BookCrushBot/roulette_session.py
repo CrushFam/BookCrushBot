@@ -19,7 +19,7 @@ class RouletteSession(Session):
 
         parts = ["<b>Roulette Portal</b>\nIdeally there is no limit !"]
         ln = self.books_count
-        buttons = [tgm.InlineKeyboardButton(text="Add A Book", callback_data="add")]
+        buttons = [tgm.InlineKeyboardButton(text="Add A Book", callback_data="suggest")]
 
         if ln == 0:
             parts.append("You have not added any book. Isn't this the perfect moment ?")
