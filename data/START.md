@@ -5,13 +5,14 @@ Hey there *{NAME}* !
   ∙ You *{REVIEW}* review the books you have read this month.
   ∙ _Roulette_ is *{ROULETTE}* new books.
 
-Welcome to *Don't Cry November*.
- _2 - 5 November_ - Submission of suggestions
- _5 - 8 November_ - BOTM poll
- _8 - 28 November_ - Reading time and Progress poll
- _28 - 30 November_ - Discussion period
+Welcome to *Month of Modern Mysteries*.
+ _5 - 7 December_ - Submission of suggestions
+ _8 - 9 December_ - BOTM poll
+ _10 - 28 December_ - Reading time and Progress poll
+ _29 - 31 December_ - Discussion period
 
-Let the unrevealed side of living souls be exposed !
+An advance Merry Christmas 🎅 and Happy New Year 🎆 !
+Die not suspicious mind, you have mysteries to mingle 😉...
 
 If you are stuck use /help.
 Thanks.
