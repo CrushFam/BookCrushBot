@@ -5,14 +5,7 @@ Hey there *{NAME}* !
   ∙ You *{REVIEW}* review the books you have read this month.
   ∙ _Roulette_ is *{ROULETTE}* new books.
 
-Welcome to *Month of Modern Mysteries*.
- _5 - 7 December_ - Submission of suggestions
- _8 - 9 December_ - BOTM poll
- _10 - 28 December_ - Reading time and Progress poll
- _29 - 31 December_ - Discussion period
-
-An advance Merry Christmas 🎅 and Happy New Year 🎆 !
-Die not suspicious mind, you have mysteries to mingle 😉...
+Join us in mourning the great man *John le Carré* and in his honour, picking a le Carré work as the first BoTM of the new year, as we usher in new beginnings!
 
 If you are stuck use /help.
 Thanks.
