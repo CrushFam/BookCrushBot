@@ -32,7 +32,7 @@ def send_help(update: Update, _):
 def send_start(update: Update, _):
 
     name = update.effective_user.full_name
-    text = open("data/start.html").read().format(NAME=full_name)
+    text = open("data/start.html").read().format(NAME=name)
     update.message.reply_html(text=text)
 
 
