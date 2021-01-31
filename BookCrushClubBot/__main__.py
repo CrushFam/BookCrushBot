@@ -1,10 +1,10 @@
 from os import getenv
-from ReadingClubBot import Server
+from BookCrushClubBot import Server
 
 token = getenv("TOKEN")
 database_url = getenv("DATABASE_URL")
 interval = int(getenv("POLL_INTERVAL", 1))
-listen = getenv("LISTEN")
+listen = getenv("LISTEN", "0.0.0.0")
 port = int(getenv("PORT", 0))
 url = getenv("URL")
 server = Server(token, database_url)
