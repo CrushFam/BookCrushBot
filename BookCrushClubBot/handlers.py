@@ -13,6 +13,7 @@ from .base import (
     send_start,
     start_fiction,
     start_nonfiction,
+    stay_awake_ping,
 )
 
 
@@ -33,5 +34,8 @@ handlers = {
         ({"command": "nonfiction", "callback": start_nonfiction}, ()),
         ({"command": "start", "callback": send_start}, ()),
     ],
-    MessageHandler: [({"filters": Filters.text, "callback": redirect_update}, ())],
+    MessageHandler: [
+        ({"filters": Filters.chat_type.channel, "callback": stay_awake_ping}, ()),
+        ({"filters": Filters.text, "callback": redirect_update}, ()),
+    ],
 }

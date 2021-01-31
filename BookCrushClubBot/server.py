@@ -38,7 +38,7 @@ class Server:
             listen=listen,
             port=port,
             url_path=url_path,
-            allowed_updates=["message"],
+            allowed_updates=["callback_query", "channel_post", "message"],
         )
         self.updater.bot.set_webhook(f"{url}/{url_path}")
         logging.info("Started listening")

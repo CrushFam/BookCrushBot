@@ -1,3 +1,4 @@
+import logging
 from telegram import Update
 from telegram.ext import CallbackContext
 from .constants import Constants
@@ -49,3 +50,8 @@ def start_nonfiction(update: Update, context: CallbackContext):
     context.user_data["sessionType"] = Constants.NONFICTION_SESSION
     context.user_data["newMessage"] = True
     start(update, context)
+
+
+def stay_awake_ping(_, __):
+
+    logging.info("Got ping to stay awake")
