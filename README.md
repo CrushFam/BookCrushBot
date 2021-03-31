@@ -1,6 +1,6 @@
 # BookCrush Bot
 
-BookCrush Bot is a Telegram bot to manage BOTM and Roulette suggestions. It is designed to make the process of addition and removal, easy and quick.
+BookCrush Bot is a Telegram bot to manage BOTM suggestions. It is designed to make the process of addition and removal, easy and quick.
 
 # Usage
 
@@ -10,12 +10,9 @@ You can run start the bot by the following command.
 
 The required parameters are taken from environment variables.
  1. TOKEN - The Bot's token.
- 2. BOTM - (True/False) Whether to allow BOTM sessions. (Default True)
- 3. BOTM_LIMIT - The number of books to allow per person for BOTM. (Default 2)
- 4. FILE - The path of the file for logging progress. (Default sys.stdout)
- 5. DATABASE_URL - The path to PostgreSQL database.
- 6. REVIEW - (True/False) Whether to accept book reviews. (Default True)
- 7. ROULETTE - (True/False) Whether to allow Roulette sessions. (Default True)
+ 2. FICTION_LIMIT - The number of books to allow per person for fiction genre. (Default 2)
+ 3. NONFICTION_LIMIT - The number of books to allow per person for non-fiction genre. (Default 2)
+ 4. DATABASE_URL - The path to PostgreSQL database.
 
 # License
 
