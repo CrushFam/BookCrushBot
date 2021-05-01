@@ -10,13 +10,11 @@ class Message:
         "Wrong book ? No worries, try again !"
     )
 
-    EMPTY_SUGGESTIONS = (
-        "<b>Whoa there !</b> You haven't suggested anything, let's get started now !"
-    )
+    EMPTY_SUGGESTIONS = "<b>Whoa there !</b> You haven't suggested anything for <b>{GENRE}</b>, let's get started now !"
 
     FULL_SUGGESTIONS = (
         "<b>Awesome !</b> You already suggested the maximum number of "
-        "book{S}. "
+        "book{S} for <b>{GENRE}</b>. "
         "You can however remove and add new book{S}.\n\n"
         "The following books are in your list :\n"
         "{BOOKS}"
@@ -25,7 +23,7 @@ class Message:
     HALF_SUGGESTIONS = (
         "<b>Parkour !</b> The following books are in your list :\n"
         "{BOOKS}\n\n"
-        "You can still suggest {LEFT} book{S}."
+        "You can still suggest {LEFT} book{S} for <b>{GENRE}</b>."
     )
 
     INVALID_TEXT = "Sorry, I can't understand what's happening ... need some /help ?"

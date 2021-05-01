@@ -15,19 +15,20 @@ def start(update: Update, context: CallbackContext):
     sess_type = context.user_data["sessionType"]
     user_id = update.effective_user.id
 
+    if sess_type == Constants.FICTION_SESSION:
+        genre = Constants.FICTION_GENRE
+        max_count = Constants.FICTION_COUNT
+    elif sess_type == Constants.NONFICTION_SESSION:
+        genre = Constants.NONFICTION_GENRE
+        max_count = Constants.NONFICTION_COUNT
+
     if base_message:
         books_iter = context.user_data["books"]
-        if sess_type == Constants.FICTION_SESSION:
-            max_count = Constants.FICTION_COUNT
-        elif sess_type == Constants.NONFICTION_SESSION:
-            max_count = Constants.NONFICTION_COUNT
     else:
         if sess_type == Constants.FICTION_SESSION:
             books_iter = database.get_fiction_books(user_id)
-            max_count = Constants.FICTION_COUNT
         elif sess_type == Constants.NONFICTION_SESSION:
             books_iter = database.get_nonfiction_books(user_id)
-            max_count = Constants.NONFICTION_COUNT
 
     books = []
     books_str = []
@@ -43,16 +44,18 @@ def start(update: Update, context: CallbackContext):
     books_txt = "\n".join(books_str)
 
     if count == 0:
-        text = Message.EMPTY_SUGGESTIONS
+        text = Message.EMPTY_SUGGESTIONS.format(GENRE=genre)
         buttons = InlineKeyboardMarkup.from_button(Button.SUGGEST)
     elif count < max_count:
         left = max_count - count
         s = "s" * (left != 1)
-        text = Message.HALF_SUGGESTIONS.format(BOOKS=books_txt, S=s, LEFT=left)
+        text = Message.HALF_SUGGESTIONS.format(
+            BOOKS=books_txt, GENRE=genre, LEFT=left, S=s
+        )
         buttons = InlineKeyboardMarkup.from_row([Button.SUGGEST, Button.REMOVE])
     else:
         s = "s" * (max_count != 1)
-        text = Message.FULL_SUGGESTIONS.format(BOOKS=books_txt, S=s)
+        text = Message.FULL_SUGGESTIONS.format(BOOKS=books_txt, GENRE=genre, S=s)
         buttons = InlineKeyboardMarkup.from_button(Button.REMOVE, COUNT=count)
 
     if context.user_data.pop("newMessage", False):
