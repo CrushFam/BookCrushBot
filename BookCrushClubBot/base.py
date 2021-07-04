@@ -23,7 +23,7 @@ def get_fiction(update: Update, context: CallbackContext):
     database = context.bot_data["database"]
     splits = [
         Message.BOOK_FULL.format(BOOK_NAME=book, AUTHORS=", ".join(authors), NAME=name)
-        for (book, authors, name) in database.get_fiction_books_all()
+        for (name, book, authors) in database.get_fiction_books_all()
     ]
     books = "\n".join(splits)
     text = Message.BOOKS_DISPLAY.format(GENRE="Fiction", BOOKS=books)
@@ -39,7 +39,7 @@ def get_nonfiction(update: Update, context: CallbackContext):
     database = context.bot_data["database"]
     splits = [
         Message.BOOK_FULL.format(BOOK_NAME=book, AUTHORS=", ".join(authors), NAME=name)
-        for (book, authors, name) in database.get_nonfiction_books_all()
+        for (name, book, authors) in database.get_nonfiction_books_all()
     ]
     books = "\n".join(splits)
     text = Message.BOOKS_DISPLAY.format(GENRE="Non-Fiction", BOOKS=books)
@@ -48,6 +48,8 @@ def get_nonfiction(update: Update, context: CallbackContext):
 
 def redirect_update(update: Update, context: CallbackContext):
 
+    if update.message.chat.type != update.message.chat.PRIVATE:
+        return
     func = context.user_data.pop("redirectUpdate", None)
     if func:
         func(update, context)
