@@ -17,7 +17,7 @@ def clear_previous_state(context: CallbackContext):
 def get_fiction(update: Update, context: CallbackContext):
 
     if update.message.chat.id != Constants.ADMINS_GROUP:
-        update.message.reply(text=Message.UNAUTHORIZED_COMMAND)
+        update.message.reply_text(text=Message.UNAUTHORIZED_COMMAND)
         return
 
     database = context.bot_data["database"]
@@ -33,7 +33,7 @@ def get_fiction(update: Update, context: CallbackContext):
 def get_nonfiction(update: Update, context: CallbackContext):
 
     if update.message.chat.id != Constants.ADMINS_GROUP:
-        update.message.reply(text=Message.UNAUTHORIZED_COMMAND)
+        update.message.reply_text(text=Message.UNAUTHORIZED_COMMAND)
         return
 
     database = context.bot_data["database"]
