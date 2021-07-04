@@ -54,10 +54,24 @@ class Database:
         yield from cursor
         cursor.close()
 
+    def get_fiction_books_all(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.GET_FICTION_BOOKS_ALL)
+        yield from cursor
+        cursor.close()
+
     def get_nonfiction_books(self, user_id: int):
 
         cursor = self.connection.cursor()
         cursor.execute(Query.GET_NONFICTION_BOOKS, (user_id,))
+        yield from cursor
+        cursor.close()
+
+    def get_nonfiction_books_all(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.GET_NONFICTION_BOOKS_ALL)
         yield from cursor
         cursor.close()
 

@@ -8,6 +8,8 @@ from .session import (
     suggest_book,
 )
 from .base import (
+    get_fiction,
+    get_nonfiction,
     redirect_update,
     send_help,
     send_start,
@@ -30,6 +32,8 @@ handlers = {
     ],
     CommandHandler: [
         ({"command": "fiction", "callback": start_fiction}, ()),
+        ({"command": "getfiction", "callback": get_fiction}, ()),
+        ({"command": "getnonfiction", "callback": get_nonfiction}, ()),
         ({"command": "help", "callback": send_help}, ()),
         ({"command": "nonfiction", "callback": start_nonfiction}, ()),
         ({"command": "start", "callback": send_start}, ()),

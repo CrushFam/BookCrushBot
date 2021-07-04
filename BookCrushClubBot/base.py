@@ -14,6 +14,38 @@ def clear_previous_state(context: CallbackContext):
     context.user_data.clear()
 
 
+def get_fiction(update: Update, context: CallbackContext):
+
+    if update.message.chat.id != Constants.ADMINS_GROUP:
+        update.message.reply(text=Message.UNAUTHORIZED_COMMAND)
+        return
+
+    database = context.bot_data["database"]
+    splits = [
+        Message.BOOK_FULL.format(BOOK_NAME=book, AUTHORS=", ".join(authors), NAME=name)
+        for (book, authors, name) in database.get_fiction_books_all()
+    ]
+    books = "\n".join(splits)
+    text = Message.BOOKS_DISPLAY.format(GENRE="Fiction", books=books)
+    update.message.reply_html(text)
+
+
+def get_nonfiction(update: Update, context: CallbackContext):
+
+    if update.message.chat.id != Constants.ADMINS_GROUP:
+        update.message.reply(text=Message.UNAUTHORIZED_COMMAND)
+        return
+
+    database = context.bot_data["database"]
+    splits = [
+        Message.BOOK_FULL.format(BOOK_NAME=book, AUTHORS=", ".join(authors), NAME=name)
+        for (book, authors, name) in database.get_nonfiction_books_all()
+    ]
+    books = "\n".join(splits)
+    text = Message.BOOKS_DISPLAY.format(GENRE="Non-Fiction", books=books)
+    update.message.reply_html(text)
+
+
 def redirect_update(update: Update, context: CallbackContext):
 
     func = context.user_data.pop("redirectUpdate", None)

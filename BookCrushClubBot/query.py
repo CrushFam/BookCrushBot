@@ -8,9 +8,13 @@ class Query:
         "SELECT book_name, authors FROM fiction_books WHERE user_id = %s;"
     )
 
-    GET_NONFICTION_BOOKS = (
-        "SELECT book_name, authors FROM nonfiction_books WHERE user_id = %s;"
+    GET_FICTION_BOOKS_ALL = (
+        "SELECT display_name, book_name, authors FROM fiction_books;"
     )
+
+    GET_NONFICTION_BOOKS = "SELECT book_name, authors FROM nonfiction_books;"
+
+    GET_NONFICTION_BOOKS_ALL = "SELECT display_name, book_name, authors FROM nonfiction_books WHERE user_id = %s;"
 
     REMOVE_FICTION_BOOK = (
         "DELETE FROM fiction_books WHERE user_id = %s AND book_name = %s;"

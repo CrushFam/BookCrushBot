@@ -4,6 +4,10 @@ class Message:
 
     BOOK = "• <b>{BOOK_NAME}</b>\n <i>{AUTHORS}</i>"
 
+    BOOKS_DISPLAY = "<b>{GENRE}</b>\n{BOOKS}"
+
+    BOOK_FULL = "• <code>{BOOK_NAME}</code>\n <code>{AUTHORS}</code>\n {NAME}"
+
     CONFIRM_BOOK = (
         "Do you want to add this book for suggestion ?\n"
         "{BOOK}\n\n"
@@ -68,3 +72,5 @@ class Message:
     )
 
     SUGGESTIONS_METHOD = "Please choose the suggestion method."
+
+    UNAUTHORIZED_COMMAND = "Haha! No 😠..."
