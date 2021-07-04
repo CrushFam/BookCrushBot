@@ -26,7 +26,7 @@ def get_fiction(update: Update, context: CallbackContext):
         for (book, authors, name) in database.get_fiction_books_all()
     ]
     books = "\n".join(splits)
-    text = Message.BOOKS_DISPLAY.format(GENRE="Fiction", books=books)
+    text = Message.BOOKS_DISPLAY.format(GENRE="Fiction", BOOKS=books)
     update.message.reply_html(text)
 
 
@@ -42,7 +42,7 @@ def get_nonfiction(update: Update, context: CallbackContext):
         for (book, authors, name) in database.get_nonfiction_books_all()
     ]
     books = "\n".join(splits)
-    text = Message.BOOKS_DISPLAY.format(GENRE="Non-Fiction", books=books)
+    text = Message.BOOKS_DISPLAY.format(GENRE="Non-Fiction", BOOKS=books)
     update.message.reply_html(text)
 
 
