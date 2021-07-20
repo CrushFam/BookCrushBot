@@ -24,22 +24,22 @@ def __get_items(session: str, update: Update, context: CallbackContext):
         genre = "Short Story"
         items = database.get_short_stories_all()
 
-    items = {}
+    ditems = {}
     count = 0
     for (name, book, authors) in items:
-        items.setdefault((book, authors), []).append(name)
+        ditems.setdefault((book, authors), []).append(name)
         count += 1
 
     splits = [
         Message.BOOK_FULL.format(
             BOOK_NAME=book, AUTHORS=", ".join(authors), NAMES=", ".join(names)
         )
-        for ((book, authors), names) in items.items()
+        for ((book, authors), names) in ditems.items()
     ]
 
     books = "\n".join(splits)
     text = Message.BOOKS_DISPLAY.format(
-        GENRE=genre, BOOKS=books, REPEAT=count - len(items), TOTAL=count
+        GENRE=genre, BOOKS=books, REPEAT=count - len(ditems), TOTAL=count
     )
     update.message.reply_html(text)
 
