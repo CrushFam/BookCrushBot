@@ -27,7 +27,7 @@ def __get_items(session: str, update: Update, context: CallbackContext):
     ditems = {}
     count = 0
     for (name, book, authors) in items:
-        ditems.setdefault((book, authors), []).append(name)
+        ditems.setdefault((book, tuple(authors)), []).append(name)
         count += 1
 
     splits = [
