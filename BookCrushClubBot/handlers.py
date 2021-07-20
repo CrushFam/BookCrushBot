@@ -10,6 +10,7 @@ from .session import (
 from .base import (
     get_fiction,
     get_nonfiction,
+    get_short_story,
     redirect_update,
     send_help,
     send_start,
@@ -35,6 +36,7 @@ handlers = {
         ({"command": "fiction", "callback": start_fiction}, ()),
         ({"command": "getfiction", "callback": get_fiction}, ()),
         ({"command": "getnonfiction", "callback": get_nonfiction}, ()),
+        ({"command": "getshortstory", "callback": get_short_story}, ()),
         ({"command": "help", "callback": send_help}, ()),
         ({"command": "nonfiction", "callback": start_nonfiction}, ()),
         ({"command": "shortstory", "callback": start_short_story}, ()),

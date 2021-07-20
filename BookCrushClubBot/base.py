@@ -6,6 +6,44 @@ from .message import Message
 from .session import start
 
 
+def __get_items(session: str, update: Update, context: CallbackContext):
+
+    if update.message.chat.id != Constants.ADMINS_GROUP:
+        update.message.reply_text(text=Message.UNAUTHORIZED_COMMAND)
+        return
+
+    database = context.bot_data["database"]
+
+    if session == Constants.FICTION_SESSION:
+        genre = "Fiction"
+        items = database.get_fiction_books_all()
+    elif session == Constants.NONFICTION_SESSION:
+        genre = "Non Fiction"
+        items = database.get_nonfiction_books_all()
+    elif session == Constants.SHORT_STORY_SESSION:
+        genre = "Short Story"
+        items = database.get_short_stories_all()
+
+    items = {}
+    count = 0
+    for (name, book, authors) in items:
+        items.setdefault((book, authors), []).append(name)
+        count += 1
+
+    splits = [
+        Message.BOOK_FULL.format(
+            BOOK_NAME=book, AUTHORS=", ".join(authors), NAMES=", ".join(names)
+        )
+        for ((book, authors), names) in items.items()
+    ]
+
+    books = "\n".join(splits)
+    text = Message.BOOKS_DISPLAY.format(
+        GENRE=genre, BOOKS=books, REPEAT=count - len(items), TOTAL=count
+    )
+    update.message.reply_html(text)
+
+
 def clear_previous_state(context: CallbackContext):
 
     msg = context.user_data.pop("baseMessage", None)
@@ -16,34 +54,17 @@ def clear_previous_state(context: CallbackContext):
 
 def get_fiction(update: Update, context: CallbackContext):
 
-    if update.message.chat.id != Constants.ADMINS_GROUP:
-        update.message.reply_text(text=Message.UNAUTHORIZED_COMMAND)
-        return
-
-    database = context.bot_data["database"]
-    splits = [
-        Message.BOOK_FULL.format(BOOK_NAME=book, AUTHORS=", ".join(authors), NAME=name)
-        for (name, book, authors) in database.get_fiction_books_all()
-    ]
-    books = "\n".join(splits)
-    text = Message.BOOKS_DISPLAY.format(GENRE="Fiction", BOOKS=books)
-    update.message.reply_html(text)
+    __get_items(Constants.FICTION_SESSION, update, context)
 
 
 def get_nonfiction(update: Update, context: CallbackContext):
 
-    if update.message.chat.id != Constants.ADMINS_GROUP:
-        update.message.reply_text(text=Message.UNAUTHORIZED_COMMAND)
-        return
+    __get_items(Constants.NONFICTION_SESSION, update, context)
 
-    database = context.bot_data["database"]
-    splits = [
-        Message.BOOK_FULL.format(BOOK_NAME=book, AUTHORS=", ".join(authors), NAME=name)
-        for (name, book, authors) in database.get_nonfiction_books_all()
-    ]
-    books = "\n".join(splits)
-    text = Message.BOOKS_DISPLAY.format(GENRE="Non-Fiction", BOOKS=books)
-    update.message.reply_html(text)
+
+def get_short_story(update: Update, context: CallbackContext):
+
+    __get_items(Constants.SHORT_STORY_SESSION, update, context)
 
 
 def redirect_update(update: Update, context: CallbackContext):
