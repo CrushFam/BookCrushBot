@@ -4,7 +4,7 @@ class Message:
 
     BOOK = "• <b>{BOOK_NAME}</b>\n <i>{AUTHORS}</i>"
 
-    BOOKS_DISPLAY = "<b>{GENRE}</b>\n{BOOKS}\nTotal: {TOTAL}\nRepeat : {REPEAT}"
+    BOOKS_DISPLAY = "<b>{GENRE}</b>\n{BOOKS}\nTotal: {TOTAL}\nRepeat: {REPEAT}"
 
     BOOK_FULL = "• <code>{BOOK_NAME}</code>\n <code>{AUTHORS}</code>\n <i>{NAMES}</i>\n"
 
