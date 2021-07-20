@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import CHATACTION_TYPING as TYPING, PARSEMODE_HTML as HTML
 from telegram.ext import CallbackContext
+from .constants import Constants
 from .label import Label
 from .message import Message
 from .utils import get_book_by_isbn, get_books_by_name
@@ -9,6 +10,11 @@ from .utils import get_book_by_isbn, get_books_by_name
 def parse_raw(update: Update, context: CallbackContext):
 
     context.user_data["baseMessage"].edit_reply_markup()
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     chat = update.effective_chat
     details = update.message.text
     lx = details.splitlines()
@@ -21,7 +27,7 @@ def parse_raw(update: Update, context: CallbackContext):
         authors_str = " ,".join(authors)
         context.user_data["results"] = [(name, authors, genres)]
         book = Message.BOOK.format(BOOK_NAME=name, AUTHORS=authors_str)
-        text = Message.CONFIRM_BOOK.format(BOOK=book)
+        text = Message.CONFIRM_BOOK.format(BOOK=book, ITEM=item)
         buttons.insert(
             0, InlineKeyboardButton(text=Label.YES, callback_data="suggest_0")
         )
@@ -37,6 +43,11 @@ def parse_raw(update: Update, context: CallbackContext):
 def search_by_isbn(update: Update, context: CallbackContext):
 
     context.user_data["baseMessage"].edit_reply_markup()
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     chat = update.effective_chat
     query = update.message.text
     chat.send_action(TYPING)
@@ -51,7 +62,7 @@ def search_by_isbn(update: Update, context: CallbackContext):
         authors_str = " ,".join(authors)
         context.user_data["results"] = [(name, authors, genres)]
         book = Message.BOOK.format(BOOK_NAME=name, AUTHORS=authors_str)
-        text = Message.CONFIRM_BOOK.format(BOOK=book)
+        text = Message.CONFIRM_BOOK.format(BOOK=book, ITEM=item)
         buttons.insert(
             0, InlineKeyboardButton(text=Label.YES, callback_data="suggest_0")
         )
@@ -69,6 +80,11 @@ def search_by_isbn(update: Update, context: CallbackContext):
 def search_by_name(update: Update, context: CallbackContext):
 
     context.user_data["baseMessage"].edit_reply_markup()
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     chat = update.effective_chat
     query = update.message.text
     chat.send_action(TYPING)
@@ -86,7 +102,7 @@ def search_by_name(update: Update, context: CallbackContext):
 
     if results:
         books_txt = "\n".join(text_bits)
-        text = Message.SEARCH_RESULTS.format(BOOKS=books_txt, QUERY=query)
+        text = Message.SEARCH_RESULTS.format(BOOKS=books_txt, ITEM=item, QUERY=query)
     else:
         text = Message.NO_RESULTS.format(QUERY=query)
 
@@ -101,12 +117,19 @@ def search_by_name(update: Update, context: CallbackContext):
 def suggest_by_isbn(update: Update, context: CallbackContext):
 
     base_message = context.user_data["baseMessage"]
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     update.callback_query.answer()
     back = InlineKeyboardButton(text=Label.BACK, callback_data="suggest")
     keyboard = InlineKeyboardMarkup.from_button(back)
     context.user_data["redirectUpdate"] = search_by_isbn
     base_msg = base_message.edit_text(
-        text=Message.SEARCH_ISBN, reply_markup=keyboard, parse_mode=HTML
+        text=Message.SEARCH_ISBN.format(ITEM=item),
+        reply_markup=keyboard,
+        parse_mode=HTML,
     )
     context.user_data["baseMessage"] = base_msg
 
@@ -114,12 +137,19 @@ def suggest_by_isbn(update: Update, context: CallbackContext):
 def suggest_by_name(update: Update, context: CallbackContext):
 
     base_message = context.user_data["baseMessage"]
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     update.callback_query.answer()
     back = InlineKeyboardButton(text=Label.BACK, callback_data="suggest")
     keyboard = InlineKeyboardMarkup.from_button(back)
     context.user_data["redirectUpdate"] = search_by_name
     base_msg = base_message.edit_text(
-        text=Message.SEARCH_NAME, reply_markup=keyboard, parse_mode=HTML
+        text=Message.SEARCH_NAME.format(ITEM=item),
+        reply_markup=keyboard,
+        parse_mode=HTML,
     )
     context.user_data["baseMessage"] = base_msg
 
@@ -127,11 +157,18 @@ def suggest_by_name(update: Update, context: CallbackContext):
 def suggest_raw(update: Update, context: CallbackContext):
 
     base_message = context.user_data["baseMessage"]
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     update.callback_query.answer()
     back = InlineKeyboardButton(text=Label.BACK, callback_data="suggest")
     keyboard = InlineKeyboardMarkup.from_button(back)
     context.user_data["redirectUpdate"] = parse_raw
     base_msg = base_message.edit_text(
-        text=Message.SUGGEST_RAW, reply_markup=keyboard, parse_mode=HTML
+        text=Message.SUGGEST_RAW.format(ITEM=item),
+        reply_markup=keyboard,
+        parse_mode=HTML,
     )
     context.user_data["baseMessage"] = base_msg

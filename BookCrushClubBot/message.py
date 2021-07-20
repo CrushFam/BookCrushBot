@@ -9,7 +9,7 @@ class Message:
     BOOK_FULL = "• <code>{BOOK_NAME}</code>\n <code>{AUTHORS}</code>\n {NAME}"
 
     CONFIRM_BOOK = (
-        "Do you want to add this book for suggestion ?\n"
+        "Do you want to add this {ITEM} for suggestion ?\n"
         "{BOOK}\n\n"
         "Wrong book ? No worries, try again !"
     )
@@ -18,14 +18,14 @@ class Message:
 
     FULL_SUGGESTIONS = (
         "<b>Awesome !</b> You already suggested the maximum number of "
-        "book{S} for <b>{GENRE}</b>. "
+        "{ITEM}{S} for <b>{GENRE}</b>. "
         "You can however remove and add new book{S}.\n\n"
         "The following books are in your list :\n"
         "{BOOKS}"
     )
 
     HALF_SUGGESTIONS = (
-        "<b>Parkour !</b> The following books are in your list :\n"
+        "<b>Parkour !</b> The following {ITEM}s are in your list :\n"
         "{BOOKS}\n\n"
         "You can still suggest {LEFT} book{S} for <b>{GENRE}</b>."
     )
@@ -41,18 +41,18 @@ class Message:
     )
 
     REMOVE_BOOKS = (
-        "Choose the book you want to <b>remove</b>. "
+        "Choose the {ITEM} you want to <b>remove</b>. "
         "Remember, there won't be any <code>Yes/No</code> fancies, once clicked, it's done."
     )
 
     REMOVED_BOOK = "{BOOK_NAME} has been removed."
 
-    SEARCH_ISBN = "Please send me the ISBN of the book."
+    SEARCH_ISBN = "Please send me the ISBN of the {ITEM}."
 
-    SEARCH_NAME = "Please send me the name of the book."
+    SEARCH_NAME = "Please send me the name of the {ITEM}."
 
     SEARCH_RESULTS = (
-        "Here are the books matching your search query.\n"
+        "Here are the {ITEM}s matching your search query.\n"
         "{BOOKS}\n\n"
         "Not the one you are looking for ?\n"
         "Please try "
@@ -62,7 +62,7 @@ class Message:
     )
 
     SUGGEST_RAW = (
-        "Please send me the book details in the following format. "
+        "Please send me the {ITEM} details in the following format. "
         "<code>\n"
         "NAME\n"
         "AUTHOR(S)\n"

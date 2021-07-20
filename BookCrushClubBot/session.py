@@ -17,12 +17,15 @@ def start(update: Update, context: CallbackContext):
 
     if sess_type == Constants.FICTION_SESSION:
         genre = Constants.FICTION_GENRE
+        item = "book"
         max_count = Constants.FICTION_COUNT
     elif sess_type == Constants.NONFICTION_SESSION:
         genre = Constants.NONFICTION_GENRE
+        item = "book"
         max_count = Constants.NONFICTION_COUNT
     elif sess_type == Constants.SHORT_STORY_SESSION:
         genre = Constants.SHORT_STORY_GENRE
+        item = "story"
         max_count = Constants.SHORT_STORY_COUNT
 
     if base_message:
@@ -55,12 +58,14 @@ def start(update: Update, context: CallbackContext):
         left = max_count - count
         s = "s" * (left != 1)
         text = Message.HALF_SUGGESTIONS.format(
-            BOOKS=books_txt, GENRE=genre, LEFT=left, S=s
+            BOOKS=books_txt, GENRE=genre, ITEM=item, LEFT=left, S=s
         )
         buttons = InlineKeyboardMarkup.from_row([Button.SUGGEST, Button.REMOVE])
     else:
         s = "s" * (max_count != 1)
-        text = Message.FULL_SUGGESTIONS.format(BOOKS=books_txt, GENRE=genre, S=s)
+        text = Message.FULL_SUGGESTIONS.format(
+            BOOKS=books_txt, GENRE=genre, ITEM=item, S=s
+        )
         buttons = InlineKeyboardMarkup.from_button(Button.REMOVE, COUNT=count)
 
     if context.user_data.pop("newMessage", False):
@@ -75,6 +80,11 @@ def start(update: Update, context: CallbackContext):
 def remove(update: Update, context: CallbackContext):
 
     base_message = context.user_data["baseMessage"]
+    item = (
+        "story"
+        if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
+        else "book"
+    )
     update.callback_query.answer()
     buttons = [
         InlineKeyboardButton(text=name, callback_data=f"remove_{ix}")
@@ -84,7 +94,9 @@ def remove(update: Update, context: CallbackContext):
     buttons.append(back)
     keyboard = InlineKeyboardMarkup.from_column(buttons)
     base_msg = base_message.edit_text(
-        text=Message.REMOVE_BOOKS, reply_markup=keyboard, parse_mode=HTML
+        text=Message.REMOVE_BOOKS.format(ITEM=item),
+        reply_markup=keyboard,
+        parse_mode=HTML,
     )
     context.user_data["baseMessage"] = base_msg
 
@@ -101,6 +113,8 @@ def remove_book(update: Update, context: CallbackContext):
         database.remove_fiction_book(user_id, name)
     elif sess_type == Constants.NONFICTION_SESSION:
         database.remove_nonfiction_book(user_id, name)
+    elif sess_type == Constants.SHORT_STORY_SESSION:
+        database.remove_short_story(user_id, name)
 
     update.callback_query.answer(Message.REMOVED_BOOK.format(BOOK_NAME=name))
     start(update, context)
