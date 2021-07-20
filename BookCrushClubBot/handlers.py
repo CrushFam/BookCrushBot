@@ -15,6 +15,7 @@ from .base import (
     send_start,
     start_fiction,
     start_nonfiction,
+    start_short_story,
     stay_awake_ping,
 )
 
@@ -36,6 +37,7 @@ handlers = {
         ({"command": "getnonfiction", "callback": get_nonfiction}, ()),
         ({"command": "help", "callback": send_help}, ()),
         ({"command": "nonfiction", "callback": start_nonfiction}, ()),
+        ({"command": "shortstory", "callback": start_short_story}, ()),
         ({"command": "start", "callback": send_start}, ()),
     ],
     MessageHandler: [
