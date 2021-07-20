@@ -11,21 +11,21 @@ class Message:
     CONFIRM_BOOK = (
         "Do you want to add this {ITEM} for suggestion ?\n"
         "{BOOK}\n\n"
-        "Wrong book ? No worries, try again !"
+        "Wrong {ITEM} ? No worries, try again !"
     )
 
     EMPTY_SUGGESTIONS = "<b>Whoa there !</b> You haven't suggested anything for <b>{GENRE}</b>, let's get started now !"
 
     FULL_SUGGESTIONS = (
         "<b>Awesome !</b> You already suggested the maximum number of "
-        "{ITEM}{S} for <b>{GENRE}</b>. "
-        "You can however remove and add new book{S}.\n\n"
-        "The following books are in your list :\n"
+        "{ITEM} for <b>{GENRE}</b>. "
+        "You can however remove and add new {ITEM}(s).\n\n"
+        "The following {ITEM}(s) are in your list :\n"
         "{BOOKS}"
     )
 
     HALF_SUGGESTIONS = (
-        "<b>Parkour !</b> The following {ITEM}s are in your list :\n"
+        "<b>Parkour !</b> The following {ITEM}(s) are in your list :\n"
         "{BOOKS}\n\n"
         "You can still suggest {LEFT} book{S} for <b>{GENRE}</b>."
     )
@@ -52,7 +52,7 @@ class Message:
     SEARCH_NAME = "Please send me the name of the {ITEM}."
 
     SEARCH_RESULTS = (
-        "Here are the {ITEM}s matching your search query.\n"
+        "Here are the {ITEM} matching your search query.\n"
         "{BOOKS}\n\n"
         "Not the one you are looking for ?\n"
         "Please try "

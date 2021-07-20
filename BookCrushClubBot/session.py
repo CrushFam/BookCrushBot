@@ -62,10 +62,7 @@ def start(update: Update, context: CallbackContext):
         )
         buttons = InlineKeyboardMarkup.from_row([Button.SUGGEST, Button.REMOVE])
     else:
-        s = "s" * (max_count != 1)
-        text = Message.FULL_SUGGESTIONS.format(
-            BOOKS=books_txt, GENRE=genre, ITEM=item, S=s
-        )
+        text = Message.FULL_SUGGESTIONS.format(BOOKS=books_txt, GENRE=genre, ITEM=item)
         buttons = InlineKeyboardMarkup.from_button(Button.REMOVE, COUNT=count)
 
     if context.user_data.pop("newMessage", False):

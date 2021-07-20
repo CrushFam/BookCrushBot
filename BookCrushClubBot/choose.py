@@ -81,9 +81,9 @@ def search_by_name(update: Update, context: CallbackContext):
 
     context.user_data["baseMessage"].edit_reply_markup()
     item = (
-        "story"
+        "stories"
         if context.user_data["sessionType"] == Constants.SHORT_STORY_SESSION
-        else "book"
+        else "books"
     )
     chat = update.effective_chat
     query = update.message.text
