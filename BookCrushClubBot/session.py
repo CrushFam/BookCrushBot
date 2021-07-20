@@ -21,6 +21,9 @@ def start(update: Update, context: CallbackContext):
     elif sess_type == Constants.NONFICTION_SESSION:
         genre = Constants.NONFICTION_GENRE
         max_count = Constants.NONFICTION_COUNT
+    elif sess_type == Constants.SHORT_STORY_SESSION:
+        genre = Constants.SHORT_STORY_GENRE
+        max_count = Constants.SHORT_STORY_COUNT
 
     if base_message:
         books_iter = context.user_data["books"]
@@ -29,6 +32,8 @@ def start(update: Update, context: CallbackContext):
             books_iter = database.get_fiction_books(user_id)
         elif sess_type == Constants.NONFICTION_SESSION:
             books_iter = database.get_nonfiction_books(user_id)
+        elif sess_type == Constants.SHORT_STORY_SESSION:
+            books_iter = database.get_short_stories(user_id)
 
     books = []
     books_str = []
@@ -130,6 +135,8 @@ def suggest_book(update: Update, context: CallbackContext):
         database.add_fiction_book(user_id, fullname, name, authors, genres, None)
     elif sess_type == Constants.NONFICTION_SESSION:
         database.add_nonfiction_book(user_id, fullname, name, authors, genres, None)
+    elif sess_type == Constants.SHORT_STORY_SESSION:
+        database.add_short_story(user_id, fullname, name, authors, genres, None)
 
     update.callback_query.answer(Message.ADDED_BOOK.format(BOOK_NAME=name))
     context.user_data["books"].append((name, authors))

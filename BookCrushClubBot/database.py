@@ -16,8 +16,8 @@ class Database:
         user_id: int,
         display_name: str,
         book_name: str,
-        authors: str,
-        genres: str,
+        authors: list,
+        genres: list,
         notes: str,
     ):
 
@@ -34,8 +34,8 @@ class Database:
         user_id: int,
         display_name: str,
         book_name: str,
-        authors: str,
-        genres: str,
+        authors: list,
+        genres: list,
         notes: str,
     ):
 
@@ -43,6 +43,24 @@ class Database:
         cursor.execute(
             Query.ADD_NONFICTION_BOOK,
             (user_id, display_name, book_name, authors, genres, notes),
+        )
+        self.connection.commit()
+        cursor.close()
+
+    def add_short_story(
+        self,
+        user_id: int,
+        display_name: str,
+        story_name: str,
+        authors: list,
+        genres: list,
+        notes: str,
+    ):
+
+        cursor = self.connection.cursor()
+        cursor.execute(
+            Query.ADD_SHORT_STORY,
+            (user_id, display_name, story_name, authors, genres, notes),
         )
         self.connection.commit()
         cursor.close()
@@ -75,6 +93,20 @@ class Database:
         yield from cursor
         cursor.close()
 
+    def get_short_stories(self, user_id: int):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.GET_SHORT_STORIES, (user_id,))
+        yield from cursor
+        cursor.close()
+
+    def get_short_stories_all(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.GET_SHORT_STORIES_ALL)
+        yield from cursor
+        cursor.close()
+
     def remove_fiction_book(self, user_id: int, book_name: str):
 
         cursor = self.connection.cursor()
@@ -86,5 +118,12 @@ class Database:
 
         cursor = self.connection.cursor()
         cursor.execute(Query.REMOVE_NONFICTION_BOOK, (user_id, book_name))
+        self.connection.commit()
+        cursor.close()
+
+    def remove_short_story(self, user_id: int, story_name: str):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.REMOVE_SHORT_STORY, (user_id, story_name))
         self.connection.commit()
         cursor.close()

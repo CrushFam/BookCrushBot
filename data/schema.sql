@@ -17,3 +17,13 @@ CREATE TABLE nonfiction_books (
        note TEXT,
        PRIMARY KEY (user_id, book_name)
 );
+
+CREATE TABLE short_stories (
+       user_id BIGINT,
+       display_name TEXT,
+       story_name TEXT,
+       authors TEXT[] NOT NULL,
+       genres TEXT[] NOT NULL,
+       note TEXT,
+       PRIMARY KEY (user_id, story_name)
+);

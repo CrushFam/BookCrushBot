@@ -86,6 +86,14 @@ def start_nonfiction(update: Update, context: CallbackContext):
     start(update, context)
 
 
+def start_short_story(update: Update, context: CallbackContext):
+
+    clear_previous_state(context)
+    context.user_data["sessionType"] = Constants.SHORT_STORY_SESSION
+    context.user_data["newMessage"] = True
+    start(update, context)
+
+
 def stay_awake_ping(_, __):
 
     logging.info("Got ping to stay awake")

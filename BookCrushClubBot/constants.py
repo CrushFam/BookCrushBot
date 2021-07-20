@@ -16,3 +16,9 @@ class Constants:
     NONFICTION_GENRE = "Graphic Novel"
 
     NONFICTION_SESSION = "NONFICTION"
+
+    SHORT_STORY_COUNT = int(getenv("SHORT_STORY_COUNT", "1"))
+
+    SHORT_STORY_GENRE = "Any Genre"
+
+    SHORT_STORY_SESSION = "SHORT_STORY"
