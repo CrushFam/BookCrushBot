@@ -65,6 +65,24 @@ class Database:
         self.connection.commit()
         cursor.close()
 
+    def clear_fiction_books(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.CLEAR_FICTION_BOOKS)
+        cursor.close()
+
+    def clear_nonfiction_books(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.CLEAR_NONFICTION_BOOKS)
+        cursor.close()
+
+    def clear_short_stories(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.CLEAR_SHORT_STORIES)
+        cursor.close()
+
     def get_fiction_books(self, user_id: int):
 
         cursor = self.connection.cursor()

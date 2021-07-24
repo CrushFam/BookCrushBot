@@ -4,9 +4,13 @@ class Message:
 
     BOOK = "• <b>{BOOK_NAME}</b>\n <i>{AUTHORS}</i>"
 
-    BOOKS_DISPLAY = "<b>{GENRE}</b>\n{BOOKS}\nTotal: {TOTAL}\nRepeat: {REPEAT}"
+    BOOKS_DISPLAY = "<b>{GENRE}</b>\n{BOOKS}\nTotal: {TOTAL}"
 
     BOOK_FULL = "• <code>{BOOK_NAME}</code>\n <code>{AUTHORS}</code>\n <i>{NAMES}</i>\n"
+
+    CLEAR_DONE = "<code>{SECTION}</code> cleared successfully."
+
+    CLEAR_ERROR = "Invalid argument. It must be <code>fiction</code>, <code>nonfiction</code> or <code>shortstory</code>."
 
     CONFIRM_BOOK = (
         "Do you want to add this {ITEM} for suggestion ?\n"

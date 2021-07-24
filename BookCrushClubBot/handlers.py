@@ -8,6 +8,7 @@ from .session import (
     suggest_book,
 )
 from .base import (
+    clear_database,
     get_fiction,
     get_nonfiction,
     get_short_story,
@@ -33,6 +34,7 @@ handlers = {
         ({"callback": suggest_raw, "pattern": "^raw$"}, ()),
     ],
     CommandHandler: [
+        ({"command": "clear", "callback": clear_database}, ()),
         ({"command": "fiction", "callback": start_fiction}, ()),
         ({"command": "getfiction", "callback": get_fiction}, ()),
         ({"command": "getnonfiction", "callback": get_nonfiction}, ()),

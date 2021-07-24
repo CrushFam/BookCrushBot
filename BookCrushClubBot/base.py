@@ -24,24 +24,35 @@ def __get_items(session: str, update: Update, context: CallbackContext):
         genre = "Short Story"
         items = database.get_short_stories_all()
 
-    ditems = {}
+    splits = []
     count = 0
-    for (name, book, authors) in items:
-        ditems.setdefault((book, tuple(authors)), []).append(name)
-        count += 1
-
-    splits = [
-        Message.BOOK_FULL.format(
+    for (book, authors, names) in items:
+        book_full = Message.BOOK_FULL.format(
             BOOK_NAME=book, AUTHORS=", ".join(authors), NAMES=", ".join(names)
         )
-        for ((book, authors), names) in ditems.items()
-    ]
+        splits.append(book_full)
+        count += 1
 
     books = "\n".join(splits)
-    text = Message.BOOKS_DISPLAY.format(
-        GENRE=genre, BOOKS=books, REPEAT=count - len(ditems), TOTAL=count
-    )
+    text = Message.BOOKS_DISPLAY.format(GENRE=genre, BOOKS=books, TOTAL=count)
     update.message.reply_html(text)
+
+
+def clear_database(update: Update, context: CallbackContext):
+
+    arg = context.args[0] if context.args else None
+    database = context.bot_data["database"]
+
+    if arg == "fiction":
+        database.clear_fiction_books()
+    elif arg == "nonfiction":
+        database.clear_nonfiction_books()
+    elif arg == "shortstory":
+        database.clear_short_stories()
+    else:
+        update.message.reply_html(Message.CLEAR_ERROR)
+        return
+    update.message.reply_html(Message.CLEAR_DONE.format(SECTION=arg))
 
 
 def clear_previous_state(context: CallbackContext):
