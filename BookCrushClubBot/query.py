@@ -36,7 +36,7 @@ class Query:
 
     GET_SHORT_STORIES_ALL = (
         "SELECT story_name, authors, ARRAY_AGG(display_name) "
-        "FROM short_stories GROUP BY book_name, authors;"
+        "FROM short_stories GROUP BY story_name, authors;"
     )
 
     REMOVE_FICTION_BOOK = (
