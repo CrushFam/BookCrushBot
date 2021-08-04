@@ -90,7 +90,7 @@ def search_by_name(update: Update, context: CallbackContext):
     chat.send_action(TYPING)
     results = context.user_data["results"] = get_books_by_name(query)
     query = query.replace(" ", "+")
-    buttons = [InlineKeyboardButton(text=Label.BACK, callback_data="suggest")]
+    buttons = []
     text_bits = []
 
     for ix, (name, authors, _) in enumerate(results):
@@ -98,7 +98,9 @@ def search_by_name(update: Update, context: CallbackContext):
         book_dt = Message.BOOK.format(BOOK_NAME=name, AUTHORS=authors_str)
         text_bits.append(book_dt)
         button = InlineKeyboardButton(text=name, callback_data=f"suggest_{ix}")
-        buttons.insert(0, button)
+        buttons.append(button)
+
+    buttons.insert(0, InlineKeyboardButton(text=Label.BACK, callback_data="suggest"))
 
     if results:
         books_txt = "\n".join(text_bits)
