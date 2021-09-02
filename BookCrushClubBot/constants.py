@@ -7,13 +7,13 @@ class Constants:
 
     FICTION_COUNT = int(getenv("FICTION_COUNT", "2"))
 
-    FICTION_GENRE = "Humorous August"
+    FICTION_GENRE = "Dystopia"
 
     FICTION_SESSION = "FICTION"
 
     NONFICTION_COUNT = int(getenv("NONFICTION_COUNT", "2"))
 
-    NONFICTION_GENRE = "Humorous August"
+    NONFICTION_GENRE = "No Genre"
 
     NONFICTION_SESSION = "NONFICTION"
 
