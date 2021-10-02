@@ -1,5 +1,7 @@
 import logging
+from time import sleep
 from telegram import Update
+from telegram.error import TelegramError
 from telegram.ext import CallbackContext
 from .constants import Constants
 from .message import Message
@@ -13,6 +15,8 @@ def __get_items(session: str, update: Update, context: CallbackContext):
         return
 
     database = context.bot_data["database"]
+    genre = ""
+    items = []
 
     if session == Constants.FICTION_SESSION:
         genre = "Fiction"
@@ -36,6 +40,39 @@ def __get_items(session: str, update: Update, context: CallbackContext):
     books = "\n".join(splits)
     text = Message.BOOKS_DISPLAY.format(GENRE=genre, BOOKS=books, TOTAL=count)
     update.message.reply_html(text)
+
+
+def announce(update: Update, context: CallbackContext):
+
+    if update.message.chat.id != Constants.ADMINS_GROUP:
+        update.message.reply_text(text=Message.UNAUTHORIZED_COMMAND)
+        return
+
+    msg = update.message.reply_to_message
+    if not msg:
+        update.message.reply_text(Message.ANNOUNCEMENT_NO_REPLY)
+        return
+
+    update.message.reply_text(Message.ANNOUNCEMENT_STARTED)
+
+    database = context.bot_data["database"]
+    users = database.get_users()
+    count = 0
+    total = 0
+
+    for (user_id,) in users:
+        try:
+            msg.copy(user_id)
+            sleep(Constants.DELAY)
+        except TelegramError:
+            pass
+        else:
+            count += 1
+        total += 1
+
+    update.message.reply_text(
+        Message.ANNOUNCEMENT_DONE.format(COUNT=count, TOTAL=total)
+    )
 
 
 def clear_database(update: Update, context: CallbackContext):
@@ -95,11 +132,22 @@ def send_help(update: Update, _):
     update.message.reply_html(text=text)
 
 
-def send_start(update: Update, _):
+def send_start(update: Update, context: CallbackContext):
 
-    name = update.effective_user.full_name
-    text = open("data/start.html").read().format(NAME=name)
-    update.message.reply_html(text=text)
+    if context.args:
+        arg = context.args[0]
+        if arg == "fiction":
+            start_fiction(update, context)
+        elif arg == "nonfiction":
+            start_nonfiction(update, context)
+        elif arg == "shortstory":
+            start_short_story(update, context)
+        else:
+            logging.info("Incorrect start payload %s", arg)
+    else:
+        name = update.effective_user.full_name
+        text = open("data/start.html").read().format(NAME=name)
+        update.message.reply_html(text=text)
 
 
 def start_fiction(update: Update, context: CallbackContext):

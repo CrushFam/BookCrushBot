@@ -1,7 +1,9 @@
 import logging
 from telegram.ext import Updater
+from .commands import commands
 from .database import Database
 from .handlers import handlers
+from .scope import Scope
 
 
 class Server:
@@ -19,6 +21,7 @@ class Server:
             format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
         )
         self._add_handlers()
+        self._setup_commands()
 
     def _add_handlers(self):
 
@@ -27,6 +30,11 @@ class Server:
             for handler_kwargs, disp_args in handles:
                 handler_obj = handler_type(**handler_kwargs)
                 dispatcher.add_handler(handler_obj, *disp_args)
+
+    def _setup_commands(self):
+
+        self.updater.bot.set_my_commands(commands["admins"], scope=Scope.ADMINS)
+        self.updater.bot.set_my_commands(commands["private"], scope=Scope.PRIVATE)
 
     def listen(self, listen: str, port: int, url: str, url_path: str):
 

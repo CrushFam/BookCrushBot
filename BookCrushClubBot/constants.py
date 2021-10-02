@@ -5,15 +5,17 @@ class Constants:
 
     ADMINS_GROUP = -1001407344499
 
+    DELAY = 2
+
     FICTION_COUNT = int(getenv("FICTION_COUNT", "2"))
 
-    FICTION_GENRE = "Dystopia"
+    FICTION_GENRE = "On The Theatre October"
 
     FICTION_SESSION = "FICTION"
 
     NONFICTION_COUNT = int(getenv("NONFICTION_COUNT", "2"))
 
-    NONFICTION_GENRE = "No Genre"
+    NONFICTION_GENRE = "On The Theatres October"
 
     NONFICTION_SESSION = "NONFICTION"
 

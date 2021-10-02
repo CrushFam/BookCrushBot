@@ -36,7 +36,16 @@ class Query:
 
     GET_SHORT_STORIES_ALL = (
         "SELECT story_name, authors, ARRAY_AGG(display_name) "
-        "FROM short_stories GROUP BY story_name, authors;"
+        "FROM short_stories GROUP BY story_name, authors "
+        "ORDER BY RANDOM();"
+    )
+
+    GET_USERS = (
+        "SELECT user_id FROM fiction_books "
+        "UNION "
+        "SELECT user_id FROM nonfiction_books "
+        "UNION "
+        "SELECT user_id FROM short_stories;"
     )
 
     REMOVE_FICTION_BOOK = (

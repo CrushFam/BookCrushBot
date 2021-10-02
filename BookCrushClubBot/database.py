@@ -125,6 +125,13 @@ class Database:
         yield from cursor
         cursor.close()
 
+    def get_users(self):
+
+        cursor = self.connection.cursor()
+        cursor.execute(Query.GET_USERS)
+        yield from cursor
+        cursor.close()
+
     def remove_fiction_book(self, user_id: int, book_name: str):
 
         cursor = self.connection.cursor()

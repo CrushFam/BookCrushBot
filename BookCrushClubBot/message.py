@@ -2,6 +2,14 @@ class Message:
 
     ADDED_BOOK = "{BOOK_NAME} has been added to your suggestions."
 
+    ANNOUNCEMENT_DONE = "Cool, reminded {COUNT} out of {TOTAL} users."
+
+    ANNOUNCEMENT_NO_REPLY = "Reply this command to a message to announce it."
+
+    ANNOUNCEMENT_STARTED = (
+        "I have started announcement, don't disturb me for a while..."
+    )
+
     BOOK = "• <b>{BOOK_NAME}</b>\n <i>{AUTHORS}</i>"
 
     BOOKS_DISPLAY = "<b>{GENRE}</b>\n{BOOKS}\nTotal: {TOTAL}"
