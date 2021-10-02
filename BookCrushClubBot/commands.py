@@ -7,7 +7,6 @@ commands = {
         BotCommand("getfiction", "Get books for fiction"),
         BotCommand("getnonfiction", "Get books for non-fiction"),
         BotCommand("getshortstory", "Get short stories"),
-        BotCommand("unblock", "Unblocks the user"),
     ],
     "private": [
         BotCommand("fiction", "Suggest books for fiction"),
