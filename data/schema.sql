@@ -27,5 +27,5 @@ INSERT INTO keyvalue VALUES
        ('genrebotm', 'Any Genre'),
        ('genreshortstory', 'Any Genre'),
        ('maxsuggestionsbotm', '2'),
-       ('maxSuggestionsshortstory', '2'),
+       ('maxsuggestionsshortstory', '2'),
        ('starttext', 'Hey there FULL_NAME!');
