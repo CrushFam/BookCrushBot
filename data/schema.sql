@@ -1,29 +1,31 @@
-CREATE TABLE fiction_books (
-       user_id BIGINT,
-       display_name TEXT,
-       book_name TEXT,
-       authors TEXT[] NOT NULL,
-       genres TEXT[] NOT NULL,
-       note TEXT,
-       PRIMARY KEY (user_id, book_name)
+-- Set up the tables.
+
+DROP TABLE IF EXISTS keyvalue;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users(
+       user_id BIGINT PRIMARY KEY,
+       full_name TEXT
 );
 
-CREATE TABLE nonfiction_books (
-       user_id BIGINT,
-       display_name TEXT,
-       book_name TEXT,
-       authors TEXT[] NOT NULL,
-       genres TEXT[] NOT NULL,
-       note TEXT,
-       PRIMARY KEY (user_id, book_name)
+
+CREATE TABLE books(
+       user_id BIGINT REFERENCES users ON DELETE CASCADE,
+       sect TEXT,
+       bname TEXT,
+       author TEXT,
+       PRIMARY KEY (user_id, sect, bname, author)
 );
 
-CREATE TABLE short_stories (
-       user_id BIGINT,
-       display_name TEXT,
-       story_name TEXT,
-       authors TEXT[] NOT NULL,
-       genres TEXT[] NOT NULL,
-       note TEXT,
-       PRIMARY KEY (user_id, story_name)
+CREATE TABLE keyvalue(
+       keytxt TEXT PRIMARY KEY,
+       valuetxt TEXT
 );
+
+INSERT INTO keyvalue VALUES
+       ('genrebotm', 'Any Genre'),
+       ('genreshortstory', 'Any Genre'),
+       ('maxsuggestionsbotm', '2'),
+       ('maxSuggestionsshortstory', '2'),
+       ('starttext', 'Hey there FULL_NAME!');

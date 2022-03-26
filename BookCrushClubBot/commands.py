@@ -1,18 +1,27 @@
-from telegram import BotCommand
+"""Commands available to bot."""
+
+from telegram import BotCommandScopeAllPrivateChats, BotCommandScopeChat
+
+from BookCrushClubBot.constants import Literal
+
+admin = [
+    ("broadcast", "Broadcast the message across users"),
+    ("clear", "Clear the books of a section"),
+    ("get", "Get the value of a key"),
+    ("list", "List the books of a section"),
+    ("set", "Set the value of a key"),
+]
+
+common = [
+    ("help", "Help on usage"),
+    ("start", "Start the adventure"),
+]
+
+member = [
+    ("books", "Manage suggestions"),
+]
 
 commands = {
-    "admins": [
-        BotCommand("announce", "Announce all users"),
-        BotCommand("clear", "Clear the database"),
-        BotCommand("getfiction", "Get books for fiction"),
-        BotCommand("getnonfiction", "Get books for non-fiction"),
-        BotCommand("getshortstory", "Get short stories"),
-    ],
-    "private": [
-        BotCommand("fiction", "Suggest books for fiction"),
-        BotCommand("help", "Help on usage"),
-        BotCommand("nonfiction", "Suggest books for non-fiction"),
-        BotCommand("shortstory", "Suggest stories for short story"),
-        BotCommand("start", "Start the adventure"),
-    ],
+    BotCommandScopeChat(Literal.ADMINS_CHAT_ID): admin + common,
+    BotCommandScopeAllPrivateChats(): common + member,
 }

@@ -6,13 +6,12 @@ BookCrush Bot is a Telegram bot to manage BOTM suggestions. It is designed to ma
 
 You can run start the bot by the following command.
 
-    $ python3 -m BookCrushBot
+    $ python -m BookCrushClubBot
 
 The required parameters are taken from environment variables.
- 1. TOKEN - The Bot's token.
- 2. FICTION_LIMIT - The number of books to allow per person for fiction genre. (Default 2)
- 3. NONFICTION_LIMIT - The number of books to allow per person for non-fiction genre. (Default 2)
- 4. DATABASE_URL - The path to PostgreSQL database.
+
+1. TOKEN - The Bot's token.
+2. DATABASE_URL - The path to PostgreSQL database.
 
 # License
 
