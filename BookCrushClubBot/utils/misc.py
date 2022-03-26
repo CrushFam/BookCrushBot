@@ -63,9 +63,3 @@ def search_book(name: str, author: str):
         return []
     else:
         return res
-
-
-def title(text: str):
-    """Upper the first letter of a text."""
-    text = text[0].upper() + text[1:]
-    return text

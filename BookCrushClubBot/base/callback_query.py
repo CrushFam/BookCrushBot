@@ -5,7 +5,6 @@ from telegram.ext import CallbackContext
 
 from BookCrushClubBot.constants import (CallbackData, Key, Label, Literal,
                                         Message)
-from BookCrushClubBot.utils.misc import title
 
 
 def action_remove(update: Update, context: CallbackContext):
@@ -67,10 +66,8 @@ def choose_action(update: Update, context: CallbackContext, skip: bool = False):
         context.user_data["section"] = sect
 
     sect_name = Literal.SECTIONS[sect]
-    genre = database.get_value(Key.GENRE.value.format(SECTION=title(sect)))
-    maxc = int(
-        database.get_value(Key.MAX_SUGGESTIONS.value.format(SECTION=title(sect)))
-    )
+    genre = database.get_value(Key.GENRE.value.format(SECTION=sect))
+    maxc = int(database.get_value(Key.MAX_SUGGESTIONS.value.format(SECTION=sect)))
     books = database.get_books(user_id, sect)
     books_txt = "\n".join(
         Message.BOOK.format(NAME=name, AUTHOR=auth) for (name, auth) in books
