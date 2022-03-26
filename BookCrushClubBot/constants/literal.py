@@ -10,7 +10,7 @@ from .message import Message
 class Literal:
     """Constants of primary data type."""
 
-    ADMINS_CHAT_ID = -680989746
+    ADMINS_CHAT_ID = -1001407344499
 
     BROADCAST_INTERVAL = 2
 
