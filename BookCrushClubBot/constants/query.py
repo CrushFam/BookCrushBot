@@ -30,7 +30,8 @@ class Query:
     LIST_SECTION = (
         "SELECT b.bname, b.author, ARRAY_AGG(u.full_name) "
         "FROM books b INNER JOIN users u ON u.user_id = b.user_id "
-        "WHERE sect = %(section)s GROUP BY b.bname, b.author;"
+        "WHERE sect = %(section)s GROUP BY b.bname, b.author "
+        "ORDER BY RANDOM();"
     )
 
     REMOVE_BOOK = (

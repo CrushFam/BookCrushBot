@@ -9,14 +9,14 @@ from BookCrushClubBot.utils.misc import broadcast_pulse
 from .callback_query import choose_action
 
 
-def books(update: Update, context: CallbackContext):
+async def books(update: Update, context: CallbackContext):
     """Show sections available for suggestion."""
     msg = context.user_data.pop("baseMessage", None)
     if msg:
-        msg.edit_reply_markup()
+        await msg.edit_reply_markup()
 
     if update.callback_query:
-        update.callback_query.answer()
+        await update.callback_query.answer()
         user_id = update.callback_query.from_user.id
         message = update.callback_query.message
     else:
@@ -33,9 +33,9 @@ def books(update: Update, context: CallbackContext):
     )
 
     if update.callback_query:
-        msg = message.edit_text(text=Message.CHOOSE_SECTION, reply_markup=markup)
+        msg = await message.edit_text(text=Message.CHOOSE_SECTION, reply_markup=markup)
     else:
-        msg = context.bot.send_message(
+        msg = await context.bot.send_message(
             chat_id=user_id,
             text=Message.CHOOSE_SECTION,
             reply_markup=markup,
@@ -44,10 +44,10 @@ def books(update: Update, context: CallbackContext):
     context.user_data["baseMessage"] = msg
 
 
-def broadcast(update: Update, context: CallbackContext):
+async def broadcast(update: Update, context: CallbackContext):
     """Broadcast the quoted message to all users."""
     if not update.message.reply_to_message:
-        update.message.reply_text(Message.INVALID_MESSAGE)
+        await update.message.reply_text(Message.INVALID_MESSAGE)
         return
 
     database = context.bot_data["database"]
@@ -58,10 +58,10 @@ def broadcast(update: Update, context: CallbackContext):
     context.bot_data["broadcastSuccess"] = 0
     context.bot_data["broadcastFailed"] = 0
     context.job_queue.run_repeating(broadcast_pulse, Literal.BROADCAST_INTERVAL)
-    update.message.reply_text(Message.BROADCAST_STARTED.format(TOTAL=len(users)))
+    await update.message.reply_text(Message.BROADCAST_STARTED.format(TOTAL=len(users)))
 
 
-def clear(update: Update, context: CallbackContext):
+async def clear(update: Update, context: CallbackContext):
     """Clear books of a section."""
     database = context.bot_data["database"]
     sect = " ".join(context.args).lower() if context.args else None
@@ -69,14 +69,14 @@ def clear(update: Update, context: CallbackContext):
 
     if sect in Literal.SECTIONS:
         database.clear_section(sect)
-        update.message.reply_text(Message.CLEARED_SECTION.format(SECTION=sect))
+        await update.message.reply_text(Message.CLEARED_SECTION.format(SECTION=sect))
     else:
-        update.message.reply_text(
+        await update.message.reply_text(
             Message.INVALID_SECTION.format(SECTION=sect, SECTIONS=sects)
         )
 
 
-def get(update: Update, context: CallbackContext):
+async def get(update: Update, context: CallbackContext):
     """Get the value of a key."""
     database = context.bot_data["database"]
     key = context.args[-1].lower() if context.args else None
@@ -88,20 +88,20 @@ def get(update: Update, context: CallbackContext):
     else:
         text = Message.INVALID_KEY.format(KEY=key, KEYS=keys)
 
-    update.message.reply_text(text)
+    await update.message.reply_text(text)
 
 
-def help_(update: Update, context: CallbackContext):
+async def help_(update: Update, context: CallbackContext):
     """Send the help message."""
     chat = update.message.chat
 
     if chat.type == chat.PRIVATE:
-        update.message.reply_text(Message.HELP_PRIVATE)
+        await update.message.reply_text(Message.HELP_PRIVATE)
     else:
-        update.message.reply_text(Message.HELP_ADMINS)
+        await update.message.reply_text(Message.HELP_ADMINS)
 
 
-def list_(update: Update, context: CallbackContext):
+async def list_(update: Update, context: CallbackContext):
     """List books of a section."""
     database = context.bot_data["database"]
     sect = " ".join(context.args).lower() if context.args else None
@@ -119,14 +119,14 @@ def list_(update: Update, context: CallbackContext):
             )
         )
         text = Message.LIST_SECTION.format(BOOKS=books_txt, COUNT=count)
-        update.message.reply_text(text)
+        await update.message.reply_text(text)
     else:
-        update.message.reply_text(
+        await update.message.reply_text(
             Message.INVALID_SECTION.format(SECTION=sect, SECTIONS=sects)
         )
 
 
-def set_(update: Update, context: CallbackContext):
+async def set_(update: Update, context: CallbackContext):
     """Set the value of a key."""
     database = context.bot_data["database"]
     reply = update.message.reply_to_message
@@ -151,10 +151,10 @@ def set_(update: Update, context: CallbackContext):
     else:
         text = Message.INVALID_KEY.format(KEY=key, KEYS=keys)
 
-    update.message.reply_text(text)
+    await update.message.reply_text(text)
 
 
-def start(update: Update, context: CallbackContext):
+async def start(update: Update, context: CallbackContext):
     """Send the start message."""
     database = context.bot_data["database"]
     chat = update.message.chat
@@ -166,10 +166,10 @@ def start(update: Update, context: CallbackContext):
 
     if sect in Literal.SECTIONS:
         context.user_data["section"] = sect
-        choose_action(update, context, True)
+        await choose_action(update, context, True)
         return
 
     if chat.type == chat.PRIVATE:
-        update.message.reply_text(start.replace("FULL_NAME", name))
+        await update.message.reply_text(start.replace("FULL_NAME", name))
     else:
-        update.message.reply_text(Message.START)
+        await update.message.reply_text(Message.START)

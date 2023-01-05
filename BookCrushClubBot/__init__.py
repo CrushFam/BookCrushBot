@@ -2,7 +2,7 @@
 
 import logging
 
-from .server import Server  # noqa
+from .app import App
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",

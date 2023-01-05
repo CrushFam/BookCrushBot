@@ -1,5 +1,7 @@
 """Miscellaneous functions."""
 
+import logging
+
 import requests
 from telegram.error import TelegramError
 from telegram.ext import CallbackContext
@@ -10,11 +12,11 @@ from BookCrushClubBot.constants import Literal, Message
 def _parse_doc(doc):
     """Return parsed (name, author)."""
     title = doc["title"][: Literal.MAX_BOOK_NAME]
-    author = ", ".join(set(doc["author_name"]))[: Literal.MAX_AUTHOR_NAME]
+    author = ", ".join(set(doc.get("author_name", ())))[: Literal.MAX_AUTHOR_NAME]
     return (title, author)
 
 
-def broadcast_pulse(context: CallbackContext):
+async def broadcast_pulse(context: CallbackContext):
     """Broadcast the message to one user."""
     try:
         user_id = context.bot_data["broadcastUsers"].pop()
@@ -26,11 +28,11 @@ def broadcast_pulse(context: CallbackContext):
         context.job.schedule_removal()
         rate = int((success / (success + failed)) * 100)
         text = Message.BROADCAST_COMPLETED.format(RATE=rate)
-        command.reply_text(text)
+        await command.reply_text(text)
     else:
         message = context.bot_data["broadcastMessage"]
         try:
-            message.copy(user_id)
+            await message.copy(user_id)
         except TelegramError:
             context.bot_data["broadcastFailed"] += 1
         else:
@@ -55,11 +57,14 @@ def search_book(name: str, author: str):
     """Return a list of books matching the given values."""
     params = Literal.OPEN_LIBRARY_PARAMS
     params["q"] = name
-    params["author"] = author
+
     try:
-        req = requests.get(Literal.OPEN_LIBRARY_URL, params).json()["docs"]
-        res = [_parse_doc(doc) for doc in req]
-    except Exception:
+        req = requests.get(Literal.OPEN_LIBRARY_URL, params).json()["docs"][:5]
+        res = [
+            _parse_doc(doc) for doc in req if "title" in doc and "author_name" in doc
+        ]
+    except Exception as e:
+        logging.error(e)
         return []
     else:
         return res

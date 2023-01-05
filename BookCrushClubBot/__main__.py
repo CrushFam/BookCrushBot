@@ -2,18 +2,11 @@
 
 from os import getenv
 
-from BookCrushClubBot import Server
+from BookCrushClubBot import App
 
 DATABASE_URL = getenv("DATABASE_URL")
 INTERVAL = int(getenv("INTERVAL", 2))
-LISTEN = getenv("LISTEN", "0.0.0.0")
-PORT = int(getenv("PORT", 80))
 TOKEN = getenv("TOKEN")
-URL = getenv("URL")
 
-server = Server(TOKEN, DATABASE_URL)
-
-if URL:
-    server.listen(LISTEN, PORT, URL, TOKEN)
-else:
-    server.poll(INTERVAL)
+app = App(TOKEN, DATABASE_URL)
+app.poll(INTERVAL)

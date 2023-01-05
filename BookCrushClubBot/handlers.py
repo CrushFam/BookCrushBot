@@ -1,7 +1,7 @@
 """Handlers for updates."""
 
-from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
-from telegram.ext.filters import Filters
+from telegram.ext import (CallbackQueryHandler, CommandHandler, MessageHandler,
+                          filters)
 
 from BookCrushClubBot.base.callback_query import (action_remove,
                                                   action_suggest,
@@ -36,17 +36,17 @@ handlers = {
         _cbq(confirm_suggest, CallbackData.CONFIRM_SUGGEST.replace("{IX}", "+")),
     ],
     CommandHandler: [
-        _cmd(broadcast, "broadcast", Filters.chat(Literal.ADMINS_CHAT_ID)),
-        _cmd(clear, "clear", Filters.chat(Literal.ADMINS_CHAT_ID)),
-        _cmd(get, "get", Filters.chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(broadcast, "broadcast", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(clear, "clear", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(get, "get", filters.Chat(Literal.ADMINS_CHAT_ID)),
         _cmd(help_, "help", None),
-        _cmd(list_, "list", Filters.chat(Literal.ADMINS_CHAT_ID)),
-        _cmd(set_, "set", Filters.chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(list_, "list", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(set_, "set", filters.Chat(Literal.ADMINS_CHAT_ID)),
         _cmd(start, "start", None),
         _cmd(books, "books", None),
     ],
     MessageHandler: [
-        _msg(handle_text, Filters.chat_type.private & ~Filters.command),
-        _msg(fallback, Filters.chat_type.private),
+        _msg(handle_text, filters.ChatType.PRIVATE & ~filters.COMMAND),
+        _msg(fallback, filters.ChatType.PRIVATE),
     ],
 }

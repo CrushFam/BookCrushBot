@@ -7,9 +7,9 @@ from BookCrushClubBot.constants import (CallbackData, Key, Label, Literal,
                                         Message)
 
 
-def action_remove(update: Update, context: CallbackContext):
+async def action_remove(update: Update, context: CallbackContext):
     """Show list of books for user to remove."""
-    update.callback_query.answer()
+    await update.callback_query.answer()
     database = context.bot_data["database"]
     sect = context.user_data["section"]
     user_id = update.callback_query.from_user.id
@@ -32,12 +32,12 @@ def action_remove(update: Update, context: CallbackContext):
     )
     buttons.append(back)
     markup = InlineKeyboardMarkup.from_column(buttons)
-    message.edit_text(text=txt, reply_markup=markup)
+    await message.edit_text(text=txt, reply_markup=markup)
 
 
-def action_suggest(update: Update, context: CallbackContext):
+async def action_suggest(update: Update, context: CallbackContext):
     """Prompt user to suggest an book."""
-    update.callback_query.answer()
+    await update.callback_query.answer()
     sect = context.user_data["section"]
     message = update.callback_query.message
     back = InlineKeyboardButton(
@@ -45,10 +45,10 @@ def action_suggest(update: Update, context: CallbackContext):
     )
     context.user_data["expectingInput"] = True
     markup = InlineKeyboardMarkup.from_button(back)
-    message.edit_text(text=Message.SUGGEST_BOOK, reply_markup=markup)
+    await message.edit_text(text=Message.SUGGEST_BOOK, reply_markup=markup)
 
 
-def choose_action(update: Update, context: CallbackContext, skip: bool = False):
+async def choose_action(update: Update, context: CallbackContext, skip: bool = False):
     """Show user actions to perform on a section."""
     database = context.bot_data["database"]
     user_id = (
@@ -61,7 +61,7 @@ def choose_action(update: Update, context: CallbackContext, skip: bool = False):
     if skip:
         sect = context.user_data["section"]
     else:
-        update.callback_query.answer()
+        await update.callback_query.answer()
         sect = update.callback_query.data.split("_")[-1]
         context.user_data["section"] = sect
 
@@ -105,12 +105,15 @@ def choose_action(update: Update, context: CallbackContext, skip: bool = False):
     markup = InlineKeyboardMarkup(buttons)
 
     if update.callback_query:
-        message.edit_text(text=text, reply_markup=markup)
+        await message.edit_text(text=text, reply_markup=markup)
     else:
-        context.bot.send_message(chat_id=user_id, text=text, reply_markup=markup)
+        msg = await context.bot.send_message(
+            chat_id=user_id, text=text, reply_markup=markup
+        )
+        context.user_data["baseMessage"] = msg
 
 
-def confirm_remove(update: Update, context: CallbackContext):
+async def confirm_remove(update: Update, context: CallbackContext):
     """Remove the book from the database."""
     database = context.bot_data["database"]
     ix = int(update.callback_query.data.split("_")[1])
@@ -125,11 +128,11 @@ def confirm_remove(update: Update, context: CallbackContext):
     else:
         text = Message.UNKNOWN_ERROR
 
-    update.callback_query.answer(text=text)
-    choose_action(update, context, True)
+    await update.callback_query.answer(text=text)
+    await choose_action(update, context, True)
 
 
-def confirm_suggest(update: Update, context: CallbackContext):
+async def confirm_suggest(update: Update, context: CallbackContext):
     """Suggest the book to the database."""
     context.user_data.pop("expectingInput", None)
     database = context.bot_data["database"]
@@ -145,5 +148,5 @@ def confirm_suggest(update: Update, context: CallbackContext):
     else:
         text = Message.UNKNOWN_ERROR
 
-    update.callback_query.answer(text=text)
-    choose_action(update, context, True)
+    await update.callback_query.answer(text=text)
+    await choose_action(update, context, True)

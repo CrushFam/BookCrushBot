@@ -132,13 +132,30 @@ class Message:
 
     SUGGEST_BOOK = (
         "Please suggest the book.\n"
-        "You can either send me a name for me to search or "
+        "You can either send me a name to search or "
         "directly mention its full details.\n"
+        "1. Enter the book <i>name</i>.\n"
+        "2. I will search the world for books matching the name and present to you.\n"
+        "<b>OR</b>\n"
+        "1. Send me the book <i>name</i> and <i>author</i> in two lines.\n"
+        "<u>Example</u>\n"
+        "<i>The Story Of My Life\nHelen Keller</i>\n"
+        "2. <b>Note the new-line</b> between name and author!\n\n"
+        "Irrespective of the method, I will show you the book(s) found.\n"
+        "If that's the book in your mind, tap the name else you can try again.\n\n"
         "Please check /help for more information."
     )
 
     REMOVED_BOOK = "{NAME} has been removed."
 
+    REPORT = (
+        "<b>{ERROR}: {DETAILS}</b>\n"
+        "User: <a href='tg://user?={USER_ID}'>{FULL_NAME}</a>\n"
+        "Traceback\n<code>{TRACEBACK}</code>"
+    )
+
     UNEXPECTED_MESSAGE = "Okay? So what? 😑 Need some /help?"
 
-    UNKNOWN_ERROR = "Something went wrong, please report it to the developers."
+    UNKNOWN_ERROR = "Something went wrong, but don't worry, we can always /start fresh."
+
+    ZOMBIE_QUERY = "Oh no no, those messages are old and I forgot their context. Please start new using /books."
