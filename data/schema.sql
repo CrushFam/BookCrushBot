@@ -26,6 +26,6 @@ CREATE TABLE keyvalue(
 INSERT INTO keyvalue VALUES
        ('genrebotm', 'Any Genre'),
        ('genreshortstory', 'Any Genre'),
-       ('maxsuggestionsbotm', '2'),
-       ('maxsuggestionsshortstory', '2'),
-       ('starttext', 'Hey there FULL_NAME!');
+       ('maxsuggestionsbotm', '1'),
+       ('maxsuggestionsshortstory', '1'),
+       ('starttext', 'Hey there FULL_NAME!\nStart suggesting books using /books.\nPlease check /help if you are stuck.');

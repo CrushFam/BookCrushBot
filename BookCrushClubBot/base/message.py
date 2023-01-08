@@ -1,14 +1,14 @@
 """Handlers for non-command messages."""
 
-from telegram import (ChatAction, InlineKeyboardButton, InlineKeyboardMarkup,
-                      Update)
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.constants import ChatAction
 from telegram.ext import CallbackContext
 
 from BookCrushClubBot.constants import CallbackData, Label, Message
 from BookCrushClubBot.utils.misc import parse_text, search_book
 
 
-def _display_results(update: Update, context: CallbackContext):
+async def _display_results(update: Update, context: CallbackContext):
     """Display results for user to select."""
     message = context.user_data["baseMessage"]
     sect = context.user_data["section"]
@@ -35,26 +35,26 @@ def _display_results(update: Update, context: CallbackContext):
     )
     buttons.append(back)
     markup = InlineKeyboardMarkup.from_column(buttons)
-    message.edit_reply_markup()
-    msg = message.reply_text(text=txt, reply_markup=markup)
+    await message.edit_reply_markup()
+    msg = await message.reply_text(text=txt, reply_markup=markup)
     context.user_data["baseMessage"] = msg
 
 
-def handle_text(update: Update, context: CallbackContext):
+async def handle_text(update: Update, context: CallbackContext):
     """Handle text messages."""
     if context.user_data.get("expectingInput", False):
         name, authors = parse_text(update.message.text)
         if authors:
             results = [(name, authors)]
         else:
-            update.message.chat.send_action(ChatAction.TYPING)
+            await update.message.chat.send_action(ChatAction.TYPING)
             results = search_book(name, authors)
         context.user_data["books"] = results
-        _display_results(update, context)
+        await _display_results(update, context)
     else:
-        fallback(update, context)
+        await fallback(update, context)
 
 
-def fallback(update: Update, context: CallbackContext):
+async def fallback(update: Update, context: CallbackContext):
     """Fallback handler for all messages."""
-    update.message.reply_text(Message.UNEXPECTED_MESSAGE)
+    await update.message.reply_text(Message.UNEXPECTED_MESSAGE)
