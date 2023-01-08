@@ -1,5 +1,5 @@
 -- Set up the tables.
-
+\connect bcc
 DROP TABLE IF EXISTS keyvalue;
 DROP TABLE IF EXISTS books;
 DROP TABLE IF EXISTS users;
