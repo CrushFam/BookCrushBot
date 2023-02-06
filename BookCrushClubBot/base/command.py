@@ -153,7 +153,8 @@ def genpost(bookname):
 
     {desc}
     """
-    return (imgsrc,post)
+    bookurl=bookurl.split('?')[0]
+    return (imgsrc,post,bookurl)
 
 
 
@@ -167,7 +168,14 @@ async def mkposts(update: Update, context: CallbackContext):
         books = database.list_section(sect)
         
         for (name, auths, users) in books:
-            img,post = genpost(name)
+            img,post,link = genpost(name)
+            link="<a href='"+link+"'>read more</a>"
+            caplen=len(post)
+            linklen=len(link)
+            if (caplen + linklen) >1024:
+                limit = 1024 - linklen -5
+                post = post[:limit] + '...\n'
+            post+=link
             await update.message.reply_photo(img,post)
 
         await update.message.reply_text("completed making posts")
@@ -182,7 +190,14 @@ async def getbookinfo(update: Update, context: CallbackContext):
     bname = " ".join(context.args).lower() if context.args else None
 
     if bname:
-        img,post = genpost(bname)
+        img,post,link = genpost(bname)
+        link="<a href='"+link+"'>read more</a>"
+        caplen=len(post)
+        linklen=len(link)
+        if (caplen + linklen) >1024:
+            limit = 1024 - linklen -5
+            post = post[:limit] + '...\n'
+        post+=link
         await update.message.reply_photo(img,post)
     else:
         await update.message.reply_text("Sorry no such books found")
