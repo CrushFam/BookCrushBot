@@ -10,6 +10,8 @@ admin = [
     ("get", "Get the value of a key"),
     ("list", "List the books of a section"),
     ("set", "Set the value of a key"),
+    ("mkposts", "make post for all books in a sect"),
+    ("getbookinfo", "get info of any book"),
 ]
 
 common = [

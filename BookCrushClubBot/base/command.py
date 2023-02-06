@@ -8,6 +8,9 @@ from BookCrushClubBot.utils.misc import broadcast_pulse
 
 from .callback_query import choose_action
 
+import requests
+import os
+from bs4 import BeautifulSoup
 
 async def books(update: Update, context: CallbackContext):
     """Show sections available for suggestion."""
@@ -124,6 +127,65 @@ async def list_(update: Update, context: CallbackContext):
         await update.message.reply_text(
             Message.INVALID_SECTION.format(SECTION=sect, SECTIONS=sects)
         )
+
+
+
+def genpost(bookname):
+    searchurl=f"https://www.goodreads.com/search?q={bookname}"
+    searchpage= requests.get(searchurl).content
+    soup = BeautifulSoup(searchpage, 'lxml')
+    tag=soup.find('a',class_='bookTitle')
+    bookurl= "https://www.goodreads.com"+tag.get('href')
+    bookpage= requests.get(bookurl).content
+    soup= BeautifulSoup(bookpage, 'lxml')
+    title= soup.find('h1', attrs={'data-testid': 'bookTitle'}).text
+    authors= ", ".join([i.text for i in soup.find('div', class_='BookPageMetadataSection__contributor').find_all('span',class_='ContributorLink__name')])
+    imgsrc = soup.find('img',class_='ResponsiveImage').get('src')
+    rating = float(soup.find('div', class_="RatingStatistics__rating").text)
+    star='⭐'
+    stars = star*round(rating)
+    desc = soup.find('div',class_='BookPageMetadataSection__description').find('span',class_='Formatted').get_text()
+    post = \
+    f"""
+    <b>{title}</b>
+    <i>{authors}</i>
+    {stars} ({rating}/5)
+
+    {desc}
+    """
+    return (imgsrc,post)
+
+
+
+async def mkposts(update: Update, context: CallbackContext):
+    """Make post with data extracted from goodreads"""
+    database = context.bot_data["database"]
+    sect = " ".join(context.args).lower() if context.args else None
+    sects = ", ".join((Message.MONO.format(TERM=sect) for sect in Literal.SECTIONS))
+
+    if sect in Literal.SECTIONS:
+        books = database.list_section(sect)
+        
+        for (name, auths, users) in books:
+            img,post = genpost(name)
+            await update.message.reply_photo(img,post)
+
+        await update.message.reply_text("completed making posts")
+    else:
+        await update.message.reply_text(
+            Message.INVALID_SECTION.format(SECTION=sect, SECTIONS=sects)
+        )
+
+
+async def getbookinfo(update: Update, context: CallbackContext):
+    """Get post for any book"""
+    bname = " ".join(context.args).lower() if context.args else None
+
+    if bname:
+        img,post = genpost(bname)
+        await update.message.reply_photo(img,post)
+    else:
+        await update.message.reply_text("Sorry no such books found")
 
 
 async def set_(update: Update, context: CallbackContext):
