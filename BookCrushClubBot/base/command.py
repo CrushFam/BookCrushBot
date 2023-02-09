@@ -9,7 +9,7 @@ from BookCrushClubBot.utils.misc import broadcast_pulse
 from .callback_query import choose_action
 
 import requests
-import os
+import datetime
 from bs4 import BeautifulSoup
 
 async def books(update: Update, context: CallbackContext):
@@ -192,6 +192,48 @@ async def getbookinfo(update: Update, context: CallbackContext):
     if bname:
         img,post,link = genpost(bname)
         link="<a href='"+link+"'>read more</a>"
+        caplen=len(post)
+        linklen=len(link)
+        if (caplen + linklen) >1024:
+            limit = 1024 - linklen -5
+            post = post[:limit] + '...\n'
+        post+=link
+        await update.message.reply_photo(img,post)
+    else:
+        await update.message.reply_text("Sorry no such books found")
+
+
+async def botmpost(update: Update, context: CallbackContext):
+    """Get post for any book"""
+    bname = " ".join(context.args).lower() if context.args else None
+
+    if bname:
+        img,post,link = genpost(bname)
+        link="<a href='"+link+"'>read more</a>"
+        date= datetime.datetime.now()
+        header = f"<b><u>BOTM - {date.strftime('%b')} {date.year} </b><u>\n\n"
+        post=header+post
+        caplen=len(post)
+        linklen=len(link)
+        if (caplen + linklen) >1024:
+            limit = 1024 - linklen -5
+            post = post[:limit] + '...\n'
+        post+=link
+        await update.message.reply_photo(img,post)
+    else:
+        await update.message.reply_text("Sorry no such books found")
+
+
+async def rltpost(update: Update, context: CallbackContext):
+    """Get post for any book"""
+    bname = " ".join(context.args).lower() if context.args else None
+
+    if bname:
+        img,post,link = genpost(bname)
+        link="<a href='"+link+"'>read more</a>"
+        date= datetime.datetime.now()
+        header = f"<b><u>Roulette - {date.strftime('%b')} {date.year} </b></u>\n\n"
+        post=header+post
         caplen=len(post)
         linklen=len(link)
         if (caplen + linklen) >1024:
