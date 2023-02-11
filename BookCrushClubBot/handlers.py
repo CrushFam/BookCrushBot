@@ -9,7 +9,7 @@ from BookCrushClubBot.base.callback_query import (action_remove,
                                                   confirm_remove,
                                                   confirm_suggest)
 from BookCrushClubBot.base.command import (books, broadcast, clear, get, help_,
-                                           list_, set_, start)
+                                           list_, set_, start, mkposts, getbookinfo,botmpost,rltpost)
 from BookCrushClubBot.base.message import fallback, handle_text
 from BookCrushClubBot.constants import CallbackData, Literal
 
@@ -41,6 +41,10 @@ handlers = {
         _cmd(get, "get", filters.Chat(Literal.ADMINS_CHAT_ID)),
         _cmd(help_, "help", None),
         _cmd(list_, "list", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(mkposts, "mkposts", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(getbookinfo, "getbookinfo", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(botmpost, "botmpost", filters.Chat(Literal.ADMINS_CHAT_ID)),
+        _cmd(rltpost, "rltpost", filters.Chat(Literal.ADMINS_CHAT_ID)),
         _cmd(set_, "set", filters.Chat(Literal.ADMINS_CHAT_ID)),
         _cmd(start, "start", None),
         _cmd(books, "books", None),
