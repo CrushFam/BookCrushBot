@@ -180,6 +180,36 @@ f"""\
 
 
 
+# From Storygraph
+# def genpost(bookname,auths):
+#     searchurl=f"""https://app.thestorygraph.com/browse?search_term={bookname} {auths}"""
+#     print(searchurl)
+#     searchpage= requests.get(searchurl).content
+#     soup = BeautifulSoup(searchpage, 'lxml')
+#     tag=soup.find('div',class_='book-title-author-and-series')
+#     bookurl= "https://app.thestorygraph.com"+tag.get('href')
+#     bookpage= requests.get(bookurl).content
+#     soup= BeautifulSoup(bookpage, 'lxml')
+#     title= soup.find('h3', attrs={'data-testid': 'bookTitle'}).text
+#     authors= ", ".join([i.text for i in soup.find('div', class_='BookPageMetadataSection__contributor').find_all('span',class_='ContributorLink__name')])
+#     imgsrc = soup.find('img',class_='ResponsiveImage').get('src')
+#     rating = float(soup.find('div', class_="RatingStatistics__rating").text)
+#     star='⭐'
+#     stars = star*round(rating)
+#     desc = soup.find('div',class_='BookPageMetadataSection__description').find('span',class_='Formatted').get_text(separator="\n")
+#     post = \
+#     f"""
+# <b>{title}</b>
+# <i>{authors}</i>
+# {stars} ({rating}/5)
+
+# {desc}
+#     """
+#     bookurl=bookurl.split('?')[0]
+#     return (imgsrc,post,bookurl)
+
+
+
 async def mkposts(update: Update, context: CallbackContext):
     """Make post with data extracted from goodreads"""
     database = context.bot_data["database"]
@@ -191,7 +221,7 @@ async def mkposts(update: Update, context: CallbackContext):
         
         for (name, auths, users) in books:
             img,post,link = genpost(name + ' ' +auths)
-            link="<a href='"+link+"'>read more</a>"
+            link="<a href='"+link+"'>Read More...</a>"
             caplen=len(post)
             linklen=len(link)
             if (caplen + linklen) >1024:
@@ -200,7 +230,7 @@ async def mkposts(update: Update, context: CallbackContext):
             post+=link
             await update.message.reply_photo(img,post)
 
-        await update.message.reply_text("completed making posts")
+        await update.message.reply_text("Book posts made successfully!")
     else:
         await update.message.reply_text(
             Message.INVALID_SECTION.format(SECTION=sect, SECTIONS=sects)
@@ -213,7 +243,7 @@ async def getbookinfo(update: Update, context: CallbackContext):
 
     if bname:
         img,post,link = genpost(bname)
-        link="<a href='"+link+"'>read more</a>"
+        link="<a href='"+link+"'>Read More...</a>"
         caplen=len(post)
         linklen=len(link)
         if (caplen + linklen) >1024:
@@ -222,7 +252,7 @@ async def getbookinfo(update: Update, context: CallbackContext):
         post+=link
         await update.message.reply_photo(img,post)
     else:
-        await update.message.reply_text("Sorry no such books found")
+        await update.message.reply_text("404 Book Not found")
 
 
 async def botmpost(update: Update, context: CallbackContext):
@@ -231,9 +261,9 @@ async def botmpost(update: Update, context: CallbackContext):
 
     if bname:
         img,post,link = genpost(bname)
-        link="<a href='"+link+"'>read more</a>"
+        link="<a href='"+link+"'>Read More...</a>"
         date= datetime.datetime.now()
-        header = f"<b><u>BOTM - {date.strftime('%b')} {date.year} </b><u>\n\n"
+        header = f"<b><u>BOTM - {date.strftime('%b')} {date.year} </u><b>\n\n"
         post=header+post
         caplen=len(post)
         linklen=len(link)
@@ -243,7 +273,7 @@ async def botmpost(update: Update, context: CallbackContext):
         post+=link
         await update.message.reply_photo(img,post)
     else:
-        await update.message.reply_text("Sorry no such books found")
+        await update.message.reply_text("404 Book Not found")
 
 
 async def rltpost(update: Update, context: CallbackContext):
@@ -252,9 +282,9 @@ async def rltpost(update: Update, context: CallbackContext):
 
     if bname:
         img,post,link = genpost(bname)
-        link="<a href='"+link+"'>read more</a>"
+        link="<a href='"+link+"'>Read More...</a>"
         date= datetime.datetime.now()
-        header = f"<b><u>Roulette - {date.strftime('%b')} {date.year} </b></u>\n\n"
+        header = f"<b><u>Roulette - {date.strftime('%b')} {date.year} </u></b>\n\n"
         post=header+post
         caplen=len(post)
         linklen=len(link)
