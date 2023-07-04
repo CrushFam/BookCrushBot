@@ -7,7 +7,7 @@ from BookCrushClubBot.constants import CallbackData, Key, Literal, Message
 from BookCrushClubBot.utils.misc import broadcast_pulse
 
 from .callback_query import choose_action
-
+import re
 import requests
 import datetime
 from bs4 import BeautifulSoup
@@ -129,33 +129,55 @@ async def list_(update: Update, context: CallbackContext):
         )
 
 
+def peek(bookname):
+    url = f"https://app.thestorygraph.com/browse?search_term={bookname}"
+    sp = requests.get(url).content
+    soup = BeautifulSoup(sp, 'lxml')
+    divi = soup.find('div', class_ = 'book-pane-content')
+    img = divi.find('img').get('src')
+    divi = divi.find('div', class_ = 'book-title-author-and-series')
+    bli = divi.find('a')
+    bname = bli.text
+    aname = divi.find('p','font-body').text.strip()
+    try:
+        seriesname = divi.find('p','font-semibold').text
+    except:
+        seriesname = 'N/A'
+    burl = 'https://app.thestorygraph.com' + bli.get('href')
+    return (bname,seriesname,aname,img,burl)
+
+def mine(burl):
+    bp = BeautifulSoup(requests.get(burl).content, 'lxml')
+    sr = bp.find('span','average-star-rating').text.strip()
+    pre = '<div class="trix-content mt-3"><div>'.strip()
+    post = "</div>".strip()
+    pattern = pre +' *(.|\n)+ *'+post
+    blurb = bp.find('div','blurb-pane').parent.find('script').text
+    inht = re.search(pattern, blurb).group().replace('\\',"")
+    desc = BeautifulSoup(inht,'lxml').text
+    return (sr,desc)
 
 def genpost(bookname):
-    searchurl=f"""https://www.goodreads.com/search?q={bookname}"""
-    print(searchurl)
-    searchpage= requests.get(searchurl).content
-    soup = BeautifulSoup(searchpage, 'lxml')
-    tag=soup.find('a',class_='bookTitle')
-    bookurl= "https://www.goodreads.com"+tag.get('href')
-    bookpage= requests.get(bookurl).content
-    soup= BeautifulSoup(bookpage, 'lxml')
-    title= soup.find('h1', attrs={'data-testid': 'bookTitle'}).text
-    authors= ", ".join([i.text for i in soup.find('div', class_='BookPageMetadataSection__contributor').find_all('span',class_='ContributorLink__name')])
-    imgsrc = soup.find('img',class_='ResponsiveImage').get('src')
-    rating = float(soup.find('div', class_="RatingStatistics__rating").text)
-    star='⭐'
-    stars = star*round(rating)
-    desc = soup.find('div',class_='BookPageMetadataSection__description').find('span',class_='Formatted').get_text(separator=" ")
+    bname,seriesname, aname,img,burl = peek(bookname)
+    sr,desc = mine(burl)
+    star = "⭐"*round(float(sr))
+    ser=""
+    if seriesname != 'N/A':
+        ser = \
+f"""
+<b><i>{seriesname}</b><i>"""
+        
     post = \
-    f"""
-<b>{title}</b>
-<i>{authors}</i>
-{stars} ({rating}/5)
+f"""\
+<b>{bname}</b>{ser}
+<i>{aname}</i>
+
+{star} ({sr}/5.00)
 
 {desc}
 """
-    bookurl=bookurl.split('?')[0]
-    return (imgsrc,post,bookurl)
+    return (img,post,burl)
+
 
 
 # From Storygraph
@@ -198,11 +220,7 @@ async def mkposts(update: Update, context: CallbackContext):
         books = database.list_section(sect)
         
         for (name, auths, users) in books:
-            try:
-                img,post,link = genpost(name)
-            except:
-                update.message.reply_text("Error while fetching book data from Goodreads..")
-                continue
+            img,post,link = genpost(name + ' ' +auths)
             link="<a href='"+link+"'>Read More...</a>"
             caplen=len(post)
             linklen=len(link)
