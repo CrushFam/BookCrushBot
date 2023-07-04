@@ -130,8 +130,8 @@ async def list_(update: Update, context: CallbackContext):
 
 
 
-def genpost(bookname,auths):
-    searchurl=f"""https://www.goodreads.com/search?q={bookname}%20{auths}"""
+def genpost(bookname):
+    searchurl=f"""https://www.goodreads.com/search?q={bookname}"""
     print(searchurl)
     searchpage= requests.get(searchurl).content
     soup = BeautifulSoup(searchpage, 'lxml')
@@ -145,7 +145,7 @@ def genpost(bookname,auths):
     rating = float(soup.find('div', class_="RatingStatistics__rating").text)
     star='⭐'
     stars = star*round(rating)
-    desc = soup.find('div',class_='BookPageMetadataSection__description').find('span',class_='Formatted').get_text(separator="\n")
+    desc = soup.find('div',class_='BookPageMetadataSection__description').find('span',class_='Formatted').get_text(separator=" ")
     post = \
     f"""
 <b>{title}</b>
@@ -153,7 +153,7 @@ def genpost(bookname,auths):
 {stars} ({rating}/5)
 
 {desc}
-    """
+"""
     bookurl=bookurl.split('?')[0]
     return (imgsrc,post,bookurl)
 
@@ -199,7 +199,7 @@ async def mkposts(update: Update, context: CallbackContext):
         
         for (name, auths, users) in books:
             try:
-                img,post,link = genpost(name,auths)
+                img,post,link = genpost(name)
             except:
                 update.message.reply_text("Error while fetching book data from Goodreads..")
                 continue
