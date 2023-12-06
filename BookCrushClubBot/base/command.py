@@ -10,6 +10,7 @@ from .callback_query import choose_action
 import re
 import requests
 import datetime
+import asyncio
 from bs4 import BeautifulSoup
 
 async def books(update: Update, context: CallbackContext):
@@ -149,11 +150,11 @@ async def peek(bookname):
 async def mine(burl):
     bp = BeautifulSoup(requests.get(burl).content, 'lxml')
     sr = bp.find('span','average-star-rating').text.strip()
-    pre = '<div class="trix-content mt-3"><div>'.strip()
-    post = "</div>".strip()
-    pattern = pre +' *(.|\n)+ *'+post
     blurb = bp.find('div','blurb-pane').parent.find('script').text
-    inht = re.search(pattern, blurb).group().replace('\\',"")
+    #print("blurb is :", blurb)
+    pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
+    inht = pattern.search(blurb).group(1)
+    #print("after processing :", inht)
     desc = BeautifulSoup(inht,'lxml').text
     return (sr,desc)
 
@@ -228,6 +229,8 @@ async def mkposts(update: Update, context: CallbackContext):
                 post = post[:limit] + '...\n'
             post+=link
             await update.message.reply_photo(img,post)
+            await asyncio.sleep(3)
+            
 
         await update.message.reply_text("Book posts made successfully!")
     else:
