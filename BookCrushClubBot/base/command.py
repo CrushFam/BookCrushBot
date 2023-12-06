@@ -129,7 +129,7 @@ async def list_(update: Update, context: CallbackContext):
         )
 
 
-def peek(bookname):
+async def peek(bookname):
     url = f"https://app.thestorygraph.com/browse?search_term={bookname}"
     sp = requests.get(url).content
     soup = BeautifulSoup(sp, 'lxml')
@@ -146,7 +146,7 @@ def peek(bookname):
     burl = 'https://app.thestorygraph.com' + bli.get('href')
     return (bname,seriesname,aname,img,burl)
 
-def mine(burl):
+async def mine(burl):
     bp = BeautifulSoup(requests.get(burl).content, 'lxml')
     sr = bp.find('span','average-star-rating').text.strip()
     pre = '<div class="trix-content mt-3"><div>'.strip()
@@ -157,22 +157,21 @@ def mine(burl):
     desc = BeautifulSoup(inht,'lxml').text
     return (sr,desc)
 
-def genpost(bookname):
-    bname,seriesname, aname,img,burl = peek(bookname)
-    sr,desc = mine(burl)
+async def genpost(bookname):
+    bname,seriesname, aname,img,burl = await peek(bookname)
+    sr,desc = await mine(burl)
     star = "⭐"*round(float(sr))
     ser=""
     if seriesname != 'N/A':
         ser = \
 f"""
-<b><i>{seriesname}</b><i>"""
+<b><i>{seriesname}</i></b>"""
         
     post = \
 f"""\
 <b>{bname}</b>{ser}
 <i>{aname}</i>
-
-{star} ({sr}/5.00)
+{star} ({sr}/5)
 
 {desc}
 """
@@ -220,7 +219,7 @@ async def mkposts(update: Update, context: CallbackContext):
         books = database.list_section(sect)
         
         for (name, auths, users) in books:
-            img,post,link = genpost(name + ' ' +auths)
+            img,post,link = await genpost(name + ' ' +auths)
             link="<a href='"+link+"'>Read More...</a>"
             caplen=len(post)
             linklen=len(link)
@@ -242,7 +241,7 @@ async def getbookinfo(update: Update, context: CallbackContext):
     bname = " ".join(context.args).lower() if context.args else None
 
     if bname:
-        img,post,link = genpost(bname)
+        img,post,link = await genpost(bname)
         link="<a href='"+link+"'>Read More...</a>"
         caplen=len(post)
         linklen=len(link)
@@ -260,10 +259,10 @@ async def botmpost(update: Update, context: CallbackContext):
     bname = " ".join(context.args).lower() if context.args else None
 
     if bname:
-        img,post,link = genpost(bname)
+        img,post,link = await genpost(bname)
         link="<a href='"+link+"'>Read More...</a>"
         date= datetime.datetime.now()
-        header = f"<b><u>BOTM - {date.strftime('%b')} {date.year} </u><b>\n\n"
+        header = f"<b><u>BOTM - {date.strftime('%b')} {date.year} </u></b>\n\n"
         post=header+post
         caplen=len(post)
         linklen=len(link)
@@ -281,7 +280,7 @@ async def rltpost(update: Update, context: CallbackContext):
     bname = " ".join(context.args).lower() if context.args else None
 
     if bname:
-        img,post,link = genpost(bname)
+        img,post,link = await genpost(bname)
         link="<a href='"+link+"'>Read More...</a>"
         date= datetime.datetime.now()
         header = f"<b><u>Roulette - {date.strftime('%b')} {date.year} </u></b>\n\n"
