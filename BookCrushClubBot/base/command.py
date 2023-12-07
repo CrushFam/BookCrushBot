@@ -8,9 +8,9 @@ from BookCrushClubBot.utils.misc import broadcast_pulse
 
 from .callback_query import choose_action
 import re
-import requests
 import datetime
 import asyncio
+import aiohttp
 from bs4 import BeautifulSoup
 
 async def books(update: Update, context: CallbackContext):
@@ -132,31 +132,37 @@ async def list_(update: Update, context: CallbackContext):
 
 async def peek(bookname):
     url = f"https://app.thestorygraph.com/browse?search_term={bookname}"
-    sp = requests.get(url).content
-    soup = BeautifulSoup(sp, 'lxml')
-    divi = soup.find('div', class_ = 'book-pane-content')
-    img = divi.find('img').get('src')
-    divi = divi.find('div', class_ = 'book-title-author-and-series')
-    bli = divi.find('a')
-    bname = bli.text
-    aname = divi.find('p','font-body').text.strip()
-    try:
-        seriesname = divi.find('p','font-semibold').text
-    except:
-        seriesname = 'N/A'
-    burl = 'https://app.thestorygraph.com' + bli.get('href')
-    return (bname,seriesname,aname,img,burl)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as page:
+            sp = await page.text()
+            #sp = requests.get(url).content
+            soup = BeautifulSoup(sp, 'lxml')
+            divi = soup.find('div', class_ = 'book-pane-content')
+            img = divi.find('img').get('src')
+            divi = divi.find('div', class_ = 'book-title-author-and-series')
+            bli = divi.find('a')
+            bname = bli.text
+            aname = divi.find('p','font-body').text.strip()
+            try:
+                seriesname = divi.find('p','font-semibold').text
+            except:
+                seriesname = 'N/A'
+            burl = 'https://app.thestorygraph.com' + bli.get('href')
+            return (bname,seriesname,aname,img,burl)
 
 async def mine(burl):
-    bp = BeautifulSoup(requests.get(burl).content, 'lxml')
-    sr = bp.find('span','average-star-rating').text.strip()
-    blurb = bp.find('div','blurb-pane').parent.find('script').text
-    #print("blurb is :", blurb)
-    pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
-    inht = pattern.search(blurb).group(1)
-    #print("after processing :", inht)
-    desc = BeautifulSoup(inht,'lxml').text
-    return (sr,desc)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(burl) as resp:
+            page = await resp.text()
+            bp = BeautifulSoup(page, 'lxml')
+            sr = bp.find('span','average-star-rating').text.strip()
+            blurb = bp.find('div','blurb-pane').parent.find('script').text
+            #print("blurb is :", blurb)
+            pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
+            inht = pattern.search(blurb).group(1)
+            #print("after processing :", inht)
+            desc = BeautifulSoup(inht,'lxml').text
+            return (sr,desc)
 
 async def genpost(bookname):
     bname,seriesname, aname,img,burl = await peek(bookname)
