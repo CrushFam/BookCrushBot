@@ -10,7 +10,6 @@ from .callback_query import choose_action
 import re
 import datetime
 import asyncio
-import aiohttp
 import httpx
 from bs4 import BeautifulSoup
 
@@ -189,8 +188,8 @@ async def mkposts(update: Update, context: CallbackContext):
 
     if sect in Literal.SECTIONS:
         books = database.list_section(sect)
-        querries = [name + " " + auths for (name,auths,users) in books]
-        messages = [sendpost(update, querry) for querry in querries]
+        querries = (name + " " + auths for (name,auths,users) in books)
+        messages = (sendpost(update, querry) for querry in querries)
         await asyncio.gather(messages)
         await update.message.reply_text("Book posts made successfully!")
     else:
