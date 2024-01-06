@@ -11,6 +11,7 @@ import re
 import datetime
 import asyncio
 import aiohttp
+import httpx
 from bs4 import BeautifulSoup
 
 async def books(update: Update, context: CallbackContext):
@@ -130,43 +131,32 @@ async def list_(update: Update, context: CallbackContext):
         )
 
 
-async def peek(bookname):
-    url = f"https://app.thestorygraph.com/browse?search_term={bookname}"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as page:
-            sp = await page.text()
-            #sp = requests.get(url).content
-            soup = BeautifulSoup(sp, 'lxml')
-            divi = soup.find('div', class_ = 'book-pane-content')
-            img = divi.find('img').get('src')
-            divi = divi.find('div', class_ = 'book-title-author-and-series')
-            bli = divi.find('a')
-            bname = bli.text
-            aname = divi.find('p','font-body').text.strip()
-            try:
-                seriesname = divi.find('p','font-semibold').text
-            except:
-                seriesname = 'N/A'
-            burl = 'https://app.thestorygraph.com' + bli.get('href')
-            return (bname,seriesname,aname,img,burl)
-
-async def mine(burl):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(burl) as resp:
-            page = await resp.text()
-            bp = BeautifulSoup(page, 'lxml')
-            sr = bp.find('span','average-star-rating').text.strip()
-            blurb = bp.find('div','blurb-pane').parent.find('script').text
-            #print("blurb is :", blurb)
-            pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
-            inht = pattern.search(blurb).group(1)
-            #print("after processing :", inht)
-            desc = BeautifulSoup(inht,'lxml').text
-            return (sr,desc)
-
-async def genpost(bookname):
-    bname,seriesname, aname,img,burl = await peek(bookname)
-    sr,desc = await mine(burl)
+async def sendpost(update: Update, querry):
+    url = f"https://app.thestorygraph.com/browse?search_term={querry}"
+    with httpx.AsyncClient() as client:
+        page = await client.get(url)
+    soup = BeautifulSoup(page.content, 'lxml')
+    divi = soup.find('div', class_ = 'book-pane-content')
+    img = divi.find('img').get('src')
+    divi = divi.find('div', class_ = 'book-title-author-and-series')
+    bli = divi.find('a')
+    bname = bli.text
+    aname = divi.find('p','font-body').text.strip()
+    try:
+        seriesname = divi.find('p','font-semibold').text
+    except:
+        seriesname = 'N/A'
+    burl = 'https://app.thestorygraph.com' + bli.get('href')
+    with httpx.AsyncClient() as client:
+        bookpage = client.get(burl)
+    bp = BeautifulSoup(bookpage.content, 'lxml')
+    sr = bp.find('span','average-star-rating').text.strip()
+    blurb = bp.find('div','blurb-pane').parent.find('script').text
+    #print("blurb is :", blurb)
+    pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
+    inht = pattern.search(blurb).group(1)
+    #print("after processing :", inht)
+    desc = BeautifulSoup(inht,'lxml').text
     star = "⭐"*round(float(sr))
     ser=""
     if seriesname != 'N/A':
@@ -182,39 +172,14 @@ f"""\
 
 {desc}
 """
-    return (img,post,burl)
-
-
-
-# From Storygraph
-# def genpost(bookname,auths):
-#     searchurl=f"""https://app.thestorygraph.com/browse?search_term={bookname} {auths}"""
-#     print(searchurl)
-#     searchpage= requests.get(searchurl).content
-#     soup = BeautifulSoup(searchpage, 'lxml')
-#     tag=soup.find('div',class_='book-title-author-and-series')
-#     bookurl= "https://app.thestorygraph.com"+tag.get('href')
-#     bookpage= requests.get(bookurl).content
-#     soup= BeautifulSoup(bookpage, 'lxml')
-#     title= soup.find('h3', attrs={'data-testid': 'bookTitle'}).text
-#     authors= ", ".join([i.text for i in soup.find('div', class_='BookPageMetadataSection__contributor').find_all('span',class_='ContributorLink__name')])
-#     imgsrc = soup.find('img',class_='ResponsiveImage').get('src')
-#     rating = float(soup.find('div', class_="RatingStatistics__rating").text)
-#     star='⭐'
-#     stars = star*round(rating)
-#     desc = soup.find('div',class_='BookPageMetadataSection__description').find('span',class_='Formatted').get_text(separator="\n")
-#     post = \
-#     f"""
-# <b>{title}</b>
-# <i>{authors}</i>
-# {stars} ({rating}/5)
-
-# {desc}
-#     """
-#     bookurl=bookurl.split('?')[0]
-#     return (imgsrc,post,bookurl)
-
-
+    link="<a href='"+burl+"'>Read More...</a>"
+    caplen=len(post)
+    linklen=len(link)
+    if (caplen + linklen) >1024:
+        limit = 1024 - linklen -5
+        post = post[:limit] + '...\n'
+    post+=link
+    await update.message.reply_photo(img,post)
 
 async def mkposts(update: Update, context: CallbackContext):
     """Make post with data extracted from goodreads"""
@@ -224,20 +189,9 @@ async def mkposts(update: Update, context: CallbackContext):
 
     if sect in Literal.SECTIONS:
         books = database.list_section(sect)
-        
-        for (name, auths, users) in books:
-            img,post,link = await genpost(name + ' ' +auths)
-            link="<a href='"+link+"'>Read More...</a>"
-            caplen=len(post)
-            linklen=len(link)
-            if (caplen + linklen) >1024:
-                limit = 1024 - linklen -5
-                post = post[:limit] + '...\n'
-            post+=link
-            await update.message.reply_photo(img,post)
-            await asyncio.sleep(3)
-            
-
+        querries = [name + " " + auths for (name,auths,users) in books]
+        messages = [sendpost(update, querry) for querry in querries]
+        await asyncio.gather(messages)
         await update.message.reply_text("Book posts made successfully!")
     else:
         await update.message.reply_text(
@@ -250,60 +204,9 @@ async def getbookinfo(update: Update, context: CallbackContext):
     bname = " ".join(context.args).lower() if context.args else None
 
     if bname:
-        img,post,link = await genpost(bname)
-        link="<a href='"+link+"'>Read More...</a>"
-        caplen=len(post)
-        linklen=len(link)
-        if (caplen + linklen) >1024:
-            limit = 1024 - linklen -5
-            post = post[:limit] + '...\n'
-        post+=link
-        await update.message.reply_photo(img,post)
+        await sendpost(update, bname)
     else:
         await update.message.reply_text("404 Book Not found")
-
-
-async def botmpost(update: Update, context: CallbackContext):
-    """Get post for any book"""
-    bname = " ".join(context.args).lower() if context.args else None
-
-    if bname:
-        img,post,link = await genpost(bname)
-        link="<a href='"+link+"'>Read More...</a>"
-        date= datetime.datetime.now()
-        header = f"<b><u>BOTM - {date.strftime('%b')} {date.year} </u></b>\n\n"
-        post=header+post
-        caplen=len(post)
-        linklen=len(link)
-        if (caplen + linklen) >1024:
-            limit = 1024 - linklen -5
-            post = post[:limit] + '...\n'
-        post+=link
-        await update.message.reply_photo(img,post)
-    else:
-        await update.message.reply_text("404 Book Not found")
-
-
-async def rltpost(update: Update, context: CallbackContext):
-    """Get post for any book"""
-    bname = " ".join(context.args).lower() if context.args else None
-
-    if bname:
-        img,post,link = await genpost(bname)
-        link="<a href='"+link+"'>Read More...</a>"
-        date= datetime.datetime.now()
-        header = f"<b><u>Roulette - {date.strftime('%b')} {date.year} </u></b>\n\n"
-        post=header+post
-        caplen=len(post)
-        linklen=len(link)
-        if (caplen + linklen) >1024:
-            limit = 1024 - linklen -5
-            post = post[:limit] + '...\n'
-        post+=link
-        await update.message.reply_photo(img,post)
-    else:
-        await update.message.reply_text("Sorry no such books found")
-
 
 async def set_(update: Update, context: CallbackContext):
     """Set the value of a key."""
