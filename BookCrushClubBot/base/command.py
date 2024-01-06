@@ -190,7 +190,7 @@ async def mkposts(update: Update, context: CallbackContext):
         books = database.list_section(sect)
         querries = (name + " " + auths for (name,auths,users) in books)
         messages = (sendpost(update, querry) for querry in querries)
-        await asyncio.gather(messages)
+        await asyncio.gather(*messages)
         await update.message.reply_text("Book posts made successfully!")
     else:
         await update.message.reply_text(
