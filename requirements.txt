@@ -3,3 +3,4 @@ python-telegram-bot[job-queue]
 requests
 lxml
 beautifulsoup4
+httpx
