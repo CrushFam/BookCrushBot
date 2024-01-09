@@ -131,39 +131,40 @@ async def list_(update: Update, context: CallbackContext):
 
 
 async def sendpost(update: Update, querry):
-    url = f"https://app.thestorygraph.com/browse?search_term={querry}"
-    with httpx.AsyncClient() as client:
-        page = await client.get(url)
-    soup = BeautifulSoup(page.content, 'lxml')
-    divi = soup.find('div', class_ = 'book-pane-content')
-    img = divi.find('img').get('src')
-    divi = divi.find('div', class_ = 'book-title-author-and-series')
-    bli = divi.find('a')
-    bname = bli.text
-    aname = divi.find('p','font-body').text.strip()
     try:
-        seriesname = divi.find('p','font-semibold').text
-    except:
-        seriesname = 'N/A'
-    burl = 'https://app.thestorygraph.com' + bli.get('href')
-    with httpx.AsyncClient() as client:
-        bookpage = client.get(burl)
-    bp = BeautifulSoup(bookpage.content, 'lxml')
-    sr = bp.find('span','average-star-rating').text.strip()
-    blurb = bp.find('div','blurb-pane').parent.find('script').text
-    #print("blurb is :", blurb)
-    pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
-    inht = pattern.search(blurb).group(1)
-    #print("after processing :", inht)
-    desc = BeautifulSoup(inht,'lxml').text
-    star = "⭐"*round(float(sr))
-    ser=""
-    if seriesname != 'N/A':
-        ser = \
+        url = f"https://app.thestorygraph.com/browse?search_term={querry}"
+        async with httpx.AsyncClient() as client:
+            page = await client.get(url)
+        soup = BeautifulSoup(page.content, 'lxml')
+        divi = soup.find('div', class_ = 'book-pane-content')
+        img = divi.find('img').get('src')
+        divi = divi.find('div', class_ = 'book-title-author-and-series')
+        bli = divi.find('a')
+        bname = bli.text
+        aname = divi.find('p','font-body').text.strip()
+        try:
+            seriesname = divi.find('p','font-semibold').text
+        except:
+            seriesname = 'N/A'
+        burl = 'https://app.thestorygraph.com' + bli.get('href')
+        async with httpx.AsyncClient() as client:
+            bookpage = await client.get(burl)
+        bp = BeautifulSoup(bookpage.content, 'lxml')
+        sr = bp.find('span','average-star-rating').text.strip()
+        blurb = bp.find('div','blurb-pane').parent.find('script').text
+        #print("blurb is :", blurb)
+        pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
+        inht = pattern.search(blurb).group(1)
+        #print("after processing :", inht)
+        desc = BeautifulSoup(inht,'lxml').text
+        star = "⭐"*round(float(sr))
+        ser=""
+        if seriesname != 'N/A':
+            ser = \
 f"""
 <b><i>{seriesname}</i></b>"""
         
-    post = \
+        post = \
 f"""\
 <b>{bname}</b>{ser}
 <i>{aname}</i>
@@ -171,14 +172,18 @@ f"""\
 
 {desc}
 """
-    link="<a href='"+burl+"'>Read More...</a>"
-    caplen=len(post)
-    linklen=len(link)
-    if (caplen + linklen) >1024:
-        limit = 1024 - linklen -5
-        post = post[:limit] + '...\n'
-    post+=link
-    await update.message.reply_photo(img,post)
+        link="<a href='"+burl+"'>Read More...</a>"
+        caplen=len(post)
+        linklen=len(link)
+        if (caplen + linklen) >1024:
+            limit = 1024 - linklen -5
+            post = post[:limit] + '...\n'
+        post+=link
+        await update.message.reply_photo(img,post)
+    except Exception as e:
+        print("error while posting", querry)
+        print(e)
+
 
 async def mkposts(update: Update, context: CallbackContext):
     """Make post with data extracted from goodreads"""
