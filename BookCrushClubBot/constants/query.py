@@ -44,3 +44,39 @@ class Query:
         "UPDATE keyvalue SET valuetxt = %(value)s "
         "WHERE keytxt = %(key)s RETURNING TRUE;"
     )
+
+    CLUBBOT_BOOK_EXISTS = (
+        "SELECT EXISTS (SELECT 1 FROM books WHERE bname = %(name)s AND author = %(desc)s);"
+    )
+
+    POLLBOT_LINKED_POLL = (
+        "SELECT name FROM poll WHERE id = %(id)s;"
+    )
+
+    POLLBOT_SYNC_POLL = (
+        "INSERT INTO option (poll_id, index, name, is_date, description) "
+        "SELECT %(id)s, %(index)s, %(name)s, 'f', %(desc)s "
+        "WHERE NOT EXISTS (SELECT name,poll_id FROM option WHERE name = %(name)s AND poll_id = %(id)s) RETURNING TRUE;"
+    )
+
+    POLLBOT_MAX_INDEX = (
+        "SELECT MAX(index) "
+        "FROM option "
+        "WHERE poll_id = %(id)s;"
+    )
+
+    POLLBOT_REMOVE_OPTION = (
+        "DELETE FROM option "
+        "WHERE poll_id = %(id)s AND name = %(name)s "
+        "AND description = %(desc)s RETURNING TRUE;"
+    )
+
+    POLLBOT_BOOK_EXISTS = (
+        "SELECT EXISTS (SELECT 1 FROM option WHERE poll_id = %(id)s AND name = %(name)s AND description = %(desc)s);"
+    )
+
+    POLLBOT_GET_OPTIONS = (
+        "SELECT name,description "
+        "FROM option "
+        "WHERE poll_id = %(id)s;"
+    )

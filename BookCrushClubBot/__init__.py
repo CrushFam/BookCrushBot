@@ -6,5 +6,5 @@ from .app import App
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
-    level=logging.DEBUG,
+    level=logging.INFO,
 )

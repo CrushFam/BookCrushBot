@@ -136,3 +136,4 @@ nohup.out
 pyvenv.cfg
 data/
 data/schema.sql
+get-pip.py

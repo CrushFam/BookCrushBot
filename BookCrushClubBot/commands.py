@@ -11,7 +11,8 @@ admin = [
     ("list", "List the books of a section"),
     ("set", "Set the value of a key"),
     ("mkposts", "make post for all books in a sect"),
-    ("getbookinfo", "get info of any book")
+    ("getbookinfo", "get info of any book"),
+    ("sync", "sync suggestions with poll")
 ]
 
 common = [

@@ -1,6 +1,6 @@
 """Database for stoing information."""
 
-import psycopg
+import psycopg2
 
 from BookCrushClubBot.constants import Query
 
@@ -10,7 +10,7 @@ class Database:
 
     def __init__(self, database_url: str):
         """Create a new database connection with database URL."""
-        self._connection = psycopg.connect(database_url)
+        self._connection = psycopg2.connect(database_url)
 
     def _failsafe(func):
         """Commit or rollback facility for queries."""
@@ -18,7 +18,7 @@ class Database:
         def wrapped(self, *args, **kwargs):
             try:
                 ret = func(self, *args, **kwargs)
-            except psycopg.Error as e:
+            except psycopg2.Error as e:
                 self._connection.rollback()
                 raise e
             else:
@@ -108,3 +108,56 @@ class Database:
         row = cur.fetchone()
         ret = row[0] if row else False
         return ret
+    
+    def get_poll(self, id: int) -> str:
+        """Get linked poll details"""
+        cur = self._connection.cursor()
+        cur.execute(Query.POLLBOT_LINKED_POLL, {"id": id})
+        row = cur.fetchone()
+        ret = row[0] if row else False
+        return ret
+    
+    @_failsafe
+    def sync(self, id: int, index: int, name: str, desc: str) -> bool:
+        """sync the poll bot with club bot suggestions"""
+        cur = self._connection.cursor()
+        cur.execute(Query.POLLBOT_SYNC_POLL, {"id": id, "index": index, "name": name, "desc": desc})
+        row = cur.fetchone()
+        ret = row[0] if row else False
+        return ret
+    
+    def get_max_index (self, id: int) -> int:
+        cur = self._connection.cursor()
+        cur.execute(Query.POLLBOT_MAX_INDEX, {"id": id})
+        row = cur.fetchone()
+        ret = row[0] if row else 0
+        return ret
+    
+    def book_exists (self, name: str, desc: str, id: int) -> bool:
+        cur = self._connection.cursor()
+        cur.execute(Query.POLLBOT_BOOK_EXISTS, {"name": name, "desc":desc, "id": id})
+        row = cur.fetchone()
+        ret = row[0] if row else False
+        return ret
+    
+    def club_book_exists (self, name: str, desc: str) -> bool:
+        cur = self._connection.cursor()
+        cur.execute(Query.CLUBBOT_BOOK_EXISTS, {"name": name, "desc":desc})
+        row = cur.fetchone()
+        ret = row[0] if row else False
+        return ret
+    
+    @_failsafe
+    def remove_polloption (self, name: str, desc: str, id: int) -> bool:
+        cur = self._connection.cursor()
+        cur.execute(Query.POLLBOT_REMOVE_OPTION, {"name": name, "desc":desc, "id": id})
+        row = cur.fetchone()
+        ret = row[0] if row else 0
+        return ret
+    
+    def get_options (self, id: int) -> list:
+        cur = self._connection.cursor()
+        cur.execute(Query.POLLBOT_GET_OPTIONS, {"id": id})
+        options = list(cur)
+        cur.close()
+        return options

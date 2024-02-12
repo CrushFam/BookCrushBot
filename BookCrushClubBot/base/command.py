@@ -117,17 +117,71 @@ async def list_(update: Update, context: CallbackContext):
         books_txt = "\n".join(
             (
                 Message.BOOK_VERBOSE.format(
-                    NAME=name, AUTHORS=auths, USERS=", ".join(users)
+                    NAME=name.title(), AUTHORS=auths.title(), USERS=", ".join(users)
+                )
+                for (name, auths, users) in books
+            )
+        )
+        # to display in a format that can be input for ultimate-poll-bot
+        pollbot_dest = "\n". join(
+            (
+                Message.POLLBOT_VERBOSE.format(
+                    NAME=name.title(), AUTHORS=auths.title(), USERS=" "
                 )
                 for (name, auths, users) in books
             )
         )
         text = Message.LIST_SECTION.format(BOOKS=books_txt, COUNT=count)
         await update.message.reply_text(text)
+        await update.message.reply_text("<code>" + pollbot_dest + "</code>")
+        await sync_poll(update, context)
     else:
         await update.message.reply_text(
             Message.INVALID_SECTION.format(SECTION=sect, SECTIONS=sects)
         )
+
+async def poll (update: Update, context: CallbackContext):
+    database = context.bot_data["polldb"]
+    print(database)
+    await update.message.reply_text("testing")
+    id = Literal.LINKED_POLL
+    poll = database.get_poll(id)
+    print("reaching here?")
+    await update.message.reply_text(poll)
+
+async def sync_poll (update: Update, context: CallbackContext):
+    polldb = context.bot_data["polldb"]
+    id = Literal.LINKED_POLL
+    database = context.bot_data["database"]
+    sect = " ".join(context.args).lower() if context.args else "botm"
+    sects = ", ".join((Message.MONO.format(TERM=sect) for sect in Literal.SECTIONS))
+    success = False
+    if sect in Literal.SECTIONS:
+        books = database.list_section(sect)
+        id = Literal.LINKED_POLL
+        if(polldb.get_max_index(id) == None):
+            index = 0
+        else:
+            index = polldb.get_max_index(id) + 1
+        for (name, auth, user) in books:
+            success = polldb.sync(id, index, name.title(), auth.title())
+            index = index + 1
+        
+        options = polldb.get_options(id)
+        for (name, desc) in options:
+            if(database.club_book_exists(name, desc) and polldb.book_exists(name, desc, id)):
+                print(f"{name}-{desc} already exists")
+            elif (database.club_book_exists(name, desc) and not polldb.book_exists(name, desc, id)):
+                polldb.sync(id, index, name.title(), desc.title())
+                print(f"{name}:{desc} added")
+            elif (polldb.book_exists(name, desc, id) and not database.club_book_exists(name, desc)):
+                success2 = polldb.remove_polloption(name, desc, id)
+                if (success2): print(f"{name}:{desc} removed")
+    # if (success):
+    #     await update.message.reply_text("Sync'd successfully")
+    # else: 
+    #     await update.message.reply_text("Cannot sync :( (Possibly added the new options)")
+    
 
 
 async def sendpost(update: Update, querry):

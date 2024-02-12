@@ -8,6 +8,8 @@ class Message:
 
     BOOK_VERBOSE = "• <code>{NAME}</code>\n<code>{AUTHORS}</code>\n<i>{USERS}</i>\n"
 
+    POLLBOT_VERBOSE = "<code> {NAME} -- {AUTHORS} </code>"
+
     #BOOK_POST = "<b>{NAME}</b>\n<i>{AUTHORS}</i>\n{STARS}({RATING}/5)\n\n{DESC}\n"
 
     BROADCAST_COMPLETED = "Broadcast finished with success rate {RATE}%."

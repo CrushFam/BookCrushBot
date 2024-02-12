@@ -31,3 +31,5 @@ class Literal:
     OPEN_LIBRARY_URL = "https://openlibrary.org/search.json"
 
     UPDATES = [UpdateType.CALLBACK_QUERY, UpdateType.MESSAGE]
+
+    LINKED_POLL = 7

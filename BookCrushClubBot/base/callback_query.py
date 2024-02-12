@@ -2,6 +2,7 @@
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
+import BookCrushClubBot
 
 from BookCrushClubBot.constants import (CallbackData, Key, Label, Literal,
                                         Message)
@@ -122,7 +123,8 @@ async def confirm_remove(update: Update, context: CallbackContext):
     user_id = update.callback_query.from_user.id
     sect = context.user_data["section"]
     ret = database.remove_book(user_id, sect, name, author)
-
+    await BookCrushClubBot.base.command.sync_poll(update, context)
+    
     if ret:
         text = Message.REMOVED_BOOK.format(NAME=name)
     else:
@@ -141,8 +143,8 @@ async def confirm_suggest(update: Update, context: CallbackContext):
     name, author = books.pop(ix)
     user_id = update.callback_query.from_user.id
     sect = context.user_data["section"]
-    ret = database.add_book(user_id, sect, name, author)
-
+    ret = database.add_book(user_id, sect, name.title(), author.title())
+    await BookCrushClubBot.base.command.sync_poll(update, context)
     if ret:
         text = Message.SUGGESTED_BOOK.format(NAME=name)
     else:

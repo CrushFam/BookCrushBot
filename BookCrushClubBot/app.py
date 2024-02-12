@@ -45,7 +45,7 @@ class App:
     taken as DATABASE_URL are obtained from environment variables.
     """
 
-    def __init__(self, token: str, database_url: str):
+    def __init__(self, token: str, database_url: str, pollbot_url: str):
         """
         App uses Application to handle different updates from Telegram.
         The bot token, taken as TOKEN and database URL, \
@@ -62,7 +62,9 @@ class App:
             .build()
         )
         self.database = Database(database_url)
+        self.polldb = Database(pollbot_url)
         self._application.bot_data["database"] = self.database
+        self._application.bot_data["polldb"] = self.polldb
         self._setup_handlers()
 
     async def _setup_commands(self, *_):
