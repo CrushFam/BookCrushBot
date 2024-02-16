@@ -340,6 +340,7 @@ async def haikudetect(update: Update, context: CallbackContext) -> None:
     
 async def get_random_quote (update: Update, context: CallbackContext):
     database = context.bot_data["database"]
+    print(database)
     authors = database.get_authors()
     authors = [x[0] for x in authors]
     print(authors)

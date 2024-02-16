@@ -6,7 +6,7 @@ import traceback
 
 from telegram import Update
 from telegram.constants import ParseMode
-from telegram.ext import ApplicationBuilder, CallbackContext, Defaults, Application
+from telegram.ext import ApplicationBuilder, PicklePersistence, CallbackContext, Defaults, Application
 from ptbcontrib.ptb_jobstores.sqlalchemy import PTBSQLAlchemyJobStore
 
 from BookCrushClubBot.commands import commands
@@ -46,7 +46,7 @@ class App:
     taken as DATABASE_URL are obtained from environment variables.
     """
 
-    def __init__(self, token: str, database_url: str, pollbot_url: str):
+    def __init__(self, token: str, database_url: str, pollbot_url: str, bcc_jobs_url: str):
         """
         App uses Application to handle different updates from Telegram.
         The bot token, taken as TOKEN and database URL, \
@@ -57,42 +57,57 @@ class App:
         self._application = (
             ApplicationBuilder()
             .token(token)
+            # .persistence(PicklePersistence(filepath="persistent_storage.pickle"))
             .defaults(defaults)
             .post_init(self._setup_commands)
             .post_shutdown(self._shutdown)
             .build()
+        )
+        self._application.job_queue.scheduler.add_jobstore(
+            PTBSQLAlchemyJobStore(
+                application=self._application,
+                url=bcc_jobs_url,
+            )
         )
         self.database = Database(database_url)
         self.polldb = Database(pollbot_url)
         self._application.bot_data["database"] = self.database
         self._application.bot_data["polldb"] = self.polldb
         self._setup_handlers()
+        # self._add_handlers()
 
     async def _setup_commands(self, *_):
         for scope, cmds in commands.items():
             await self._application.bot.set_my_commands(commands=cmds, scope=scope)
 
     def _setup_handlers(self):
+        # application = Application.builder().token("TOKEN").build()
+        # application.job_queue.scheduler.add_jobstore(
+        #     PTBSQLAlchemyJobStore(
+        #         application=application,
+        #         url="postgresql://pi:raspberrypi@localhost/bccjobs",
+        #     )
+        # )
         for hdlr_type, hdlr_args_lx in handlers.items():
             for hdlr_args in hdlr_args_lx:
                 hdlr = hdlr_type(**hdlr_args)
                 self._application.add_handler(hdlr)
         self._application.add_error_handler(handle_error)
 
-    def _add_handlers(self):
-        dispatcher = self.updater.dispatcher
-        #Job persistence
-        application = Application.builder().token("TOKEN").build()
-        application.job_queue.scheduler.add_jobstore(
-            PTBSQLAlchemyJobStore(
-                application=application,
-                host="postgresql://pi:raspberrypi@localhost/bcc_jobs",
-            )
-        )
-        for handler_type, handles in handlers.items():
-            for handler_kwargs, disp_args in handles:
-                handler_obj = handler_type(**handler_kwargs)
-                dispatcher.add_handler(handler_obj, *disp_args)
+    # def _add_handlers(self):
+    #     #dispatcher = self.updater.dispatcher
+    #     #Job persistence
+    #     application = Application.builder().token("TOKEN").build()
+    #     application.job_queue.scheduler.add_jobstore(
+    #         PTBSQLAlchemyJobStore(
+    #             application=application,
+    #             host="postgresql://pi:raspberrypi@localhost/bccjobs",
+    #         )
+    #     )
+        # for handler_type, handles in handlers.items():
+        #     for handler_kwargs, disp_args in handles:
+        #         handler_obj = handler_type(**handler_kwargs)
+        #         dispatcher.add_handler(handler_obj, *disp_args)
         # for handler_type, handles in deeplinks.items():
         #     for handler_kwargs, disp_args in handles:
         #         handler_obj = handler_type(**handler_kwargs)
