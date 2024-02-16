@@ -57,4 +57,6 @@ async def handle_text(update: Update, context: CallbackContext):
 
 async def fallback(update: Update, context: CallbackContext):
     """Fallback handler for all messages."""
+    return
     await update.message.reply_text(Message.UNEXPECTED_MESSAGE)
+    await update.message.set_reaction("🥱")

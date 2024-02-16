@@ -152,3 +152,4 @@ async def confirm_suggest(update: Update, context: CallbackContext):
 
     await update.callback_query.answer(text=text)
     await choose_action(update, context, True)
+    await update.message.set_reaction("👌🏼")

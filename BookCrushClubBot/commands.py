@@ -18,6 +18,7 @@ admin = [
 common = [
     ("help", "Help on usage"),
     ("start", "Start the adventure"),
+    ("quote", "Get a random quote"),
 ]
 
 member = [

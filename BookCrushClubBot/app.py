@@ -6,7 +6,8 @@ import traceback
 
 from telegram import Update
 from telegram.constants import ParseMode
-from telegram.ext import ApplicationBuilder, CallbackContext, Defaults
+from telegram.ext import ApplicationBuilder, CallbackContext, Defaults, Application
+from ptbcontrib.ptb_jobstores.sqlalchemy import PTBSQLAlchemyJobStore
 
 from BookCrushClubBot.commands import commands
 from BookCrushClubBot.constants import Literal, Message
@@ -77,6 +78,25 @@ class App:
                 hdlr = hdlr_type(**hdlr_args)
                 self._application.add_handler(hdlr)
         self._application.add_error_handler(handle_error)
+
+    def _add_handlers(self):
+        dispatcher = self.updater.dispatcher
+        #Job persistence
+        application = Application.builder().token("TOKEN").build()
+        application.job_queue.scheduler.add_jobstore(
+            PTBSQLAlchemyJobStore(
+                application=application,
+                host="postgresql://pi:raspberrypi@localhost/bcc_jobs",
+            )
+        )
+        for handler_type, handles in handlers.items():
+            for handler_kwargs, disp_args in handles:
+                handler_obj = handler_type(**handler_kwargs)
+                dispatcher.add_handler(handler_obj, *disp_args)
+        # for handler_type, handles in deeplinks.items():
+        #     for handler_kwargs, disp_args in handles:
+        #         handler_obj = handler_type(**handler_kwargs)
+        #         dispatcher.add_handler(handler_obj, *disp_args)
 
     def poll(self, interval: int):
         """Starts polling for updates."""

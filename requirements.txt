@@ -4,3 +4,6 @@ requests
 lxml
 beautifulsoup4
 httpx
+langdetect
+pyphen
+SQLAlchemy==1.4.46

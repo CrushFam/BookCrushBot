@@ -23,6 +23,10 @@ class Query:
         "WHERE user_id = %(user_id)s AND sect = %(section)s;"
     )
 
+    GET_AUTHORS = (
+        "SELECT author FROM books where sect ='botm';"
+    )
+
     GET_USERS = "SELECT user_id FROM users;"
 
     GET_VALUE = "SELECT valuetxt FROM keyvalue WHERE keytxt = %(key)s;"

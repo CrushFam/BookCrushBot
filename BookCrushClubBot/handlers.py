@@ -9,9 +9,10 @@ from BookCrushClubBot.base.callback_query import (action_remove,
                                                   confirm_remove,
                                                   confirm_suggest)
 from BookCrushClubBot.base.command import (books, broadcast, clear, get, help_,
-                                           list_, set_, start, mkposts, getbookinfo, poll, sync_poll)
+                                           list_, set_, start, mkposts, getbookinfo, poll, sync_poll, days_since, haikudetect, get_random_quote, forward_offtopic)
 from BookCrushClubBot.base.message import fallback, handle_text
 from BookCrushClubBot.constants import CallbackData, Literal
+from BookCrushClubBot.utils.misc import schedule_jobs
 
 
 def _cbq(callback, pattern):
@@ -48,8 +49,13 @@ handlers = {
         _cmd(sync_poll, "sync", None),
         _cmd(start, "start", None),
         _cmd(books, "books", None),
+        _cmd(get_random_quote, "quote", None),
+        _cmd(schedule_jobs, "schedule", filters.ChatType.PRIVATE),
+        _cmd(forward_offtopic, "ot", filters.Chat(Literal.BOOKCRUSHCLUB_CHAT_ID) & filters.User(Literal.OT_ADMINS_IDS)),
     ],
     MessageHandler: [
+        _msg(days_since, filters.Regex(r'(?i)a little life') & (filters.Chat(Literal.ADMINS_CHAT_ID) | filters.Chat(Literal.BOOKCRUSHCLUB_CHAT_ID))),
+        _msg(haikudetect, filters.Text() & (filters.Chat(Literal.BOOKCRUSHCLUB_CHAT_ID) | filters.Chat(Literal.ADMINS_CHAT_ID))),
         _msg(handle_text, filters.ChatType.PRIVATE & ~filters.COMMAND),
         _msg(fallback, filters.ChatType.PRIVATE),
     ],

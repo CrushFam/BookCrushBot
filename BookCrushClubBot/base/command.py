@@ -1,14 +1,15 @@
 """Handler for commands."""
-
+import langdetect 
+import pyphen
+import requests, string, random
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
-from BookCrushClubBot.constants import CallbackData, Key, Literal, Message
+from BookCrushClubBot.constants import CallbackData, Key, Literal, Message, Label
 from BookCrushClubBot.utils.misc import broadcast_pulse
 
 from .callback_query import choose_action
 import re
-import datetime
 import asyncio
 import httpx
 from bs4 import BeautifulSoup
@@ -293,6 +294,111 @@ async def set_(update: Update, context: CallbackContext):
 
     await update.message.reply_text(text)
 
+async def days_since (update: Update, context: CallbackContext):
+    await update.message.reply_text(f"Days since <b>A Little Life</b> was mentioned: <tg-spoiler>ZERO</tg-spoiler>")
+    return await update.message.set_reaction("🗿")
+
+async def haikudetect(update: Update, context: CallbackContext) -> None:
+    try:
+        if(len(update.message.text) > 1000): 
+            await update.message.set_reaction("🔥") 
+        if not update.message.text: return
+        #reduce frequency of haiku detection
+        if update.message.id % 3 != 0: return
+        message = update.message.text
+        words = message.split()
+        # Checking words count
+        if (len(words) < 3 or len(words) > 17): return
+        # Loading pyphen dictionary
+        dic = pyphen.Pyphen(lang=langdetect.detect(message))
+        # Counting syllables
+        syllable_count_in_message = 0
+        syllable_count = 0
+        line = 0
+        haiku = "<blockquote>"
+        for word in words:
+            syllable_count += len(dic.inserted(word).split("-"))
+            haiku += word + " "
+            # First line must have 5 syllables and second 7.
+            if ((syllable_count >= 5 and line == 0) or (syllable_count >= 7 and line == 1)): 
+                haiku += "\n"
+                line += 1
+                syllable_count_in_message += syllable_count
+                syllable_count = 0
+            if (line == 2):
+                syllable_count_in_message += syllable_count
+                syllable_count = 0
+        # Checking for syllables count in message        
+        if (syllable_count_in_message < 16 or syllable_count_in_message > 18): return
+        # Appending author 
+        haiku += f" </blockquote>\n— {update.message.from_user.first_name}"
+        # Posting haiku
+        await update.message.reply_text("<b>Haiku detected!</b>\n <i>" + haiku + "</i>\n\n#Haiku")
+        await update.message.set_reaction("⚡")
+    except:
+        return
+    
+async def get_random_quote (update: Update, context: CallbackContext):
+    database = context.bot_data["database"]
+    authors = database.get_authors()
+    authors = [x[0] for x in authors]
+    print(authors)
+    if(context.args):
+        msg = '+'.join(context.args)
+    else:
+        msg = random.choice(authors)
+    print(msg)
+    url = f"http://www.goodreads.com/quotes/search?utf8=✓&q={msg}&commit=Search"
+    req = requests.get(url)
+    soup = BeautifulSoup(req.content)
+    
+    #get quotes from page
+    div_quotes = soup("div", attrs={"class":"quoteText"}) #soup("div") == soup.find_all("div")
+    quotes = ''
+    for q in div_quotes:
+        author = ""
+        # If no author, then skip
+        try:
+            author = q.find("span").get_text().strip() + " " + "<b>" + q.find("a").get_text() + "</b>\n"
+            #print(q.find("span").get_text())
+        except:
+            continue
+        quote = ""
+        # turn multiline quotes/poems into a single string
+        for i in range(len(q.contents)):
+            #find returns
+            line = q.contents[i].encode("ascii", errors="ignore").decode("utf-8")
+            #print("line ", line)
+            if (line[0] == "<"): # is tag, ignore characters that aren't part of quote 
+                break
+            else:
+                quote += line
+
+        quote = q.contents[0].encode("ascii", errors="ignore").decode("utf-8")
+        quote = "\"" + quote.strip() + "\""
+        quotes += "<blockquote><i>" + quote + "</i></blockquote>" + '\n\n' + '- ' + author.strip() + "#"
+    quotes_to_return = filter(lambda x: x in string.printable, quotes)
+    quotes = "".join(quotes_to_return).split("#")
+    finalquote = random.choice(quotes) + '\n\n' + '#Quotes'
+    await update.message.reply_text(finalquote)
+
+async def forward_offtopic (update: Update, context: CallbackContext):
+    if (not update.message.reply_to_message or not update.message.reply_to_message.text):
+        return
+    fwd_msg = await context.bot.send_message(Literal.OT_CHAT_ID,f"<a href=\"tg://user?id={update.message.reply_to_message.from_user.id}\">{update.message.reply_to_message.from_user.full_name}</a> said in BookCrushClub:\n\n<blockquote><i>" + update.message.reply_to_message.text + "</i></blockquote>\n\nIt was moved here.\n👇 Please continue below 👇")
+    ot_chat_id = str(Literal.OT_CHAT_ID)
+    ot_chat_id = ot_chat_id.split("-100",1)
+    print(ot_chat_id[1])
+    print(fwd_msg.message_id)
+    buttons = [
+        InlineKeyboardButton(
+            text=Label.MOVE_OT,
+            url= f"https://t.me/c/{ot_chat_id[1]}/{fwd_msg.message_id}",
+        )
+    ]
+    markup = InlineKeyboardMarkup.from_column(buttons)
+    await context.bot.send_message(Literal.BOOKCRUSHCLUB_CHAT_ID, "<b>⚠️ Offtopic alert!</b>\n\n<i>Conversation moved to Offtopic group...</i>", reply_to_message_id = update.message.reply_to_message.id, reply_markup = markup)
+    await context.bot.set_message_reaction(Literal.BOOKCRUSHCLUB_CHAT_ID, update.message.reply_to_message.id, "🤨")
 
 async def start(update: Update, context: CallbackContext):
     """Send the start message."""

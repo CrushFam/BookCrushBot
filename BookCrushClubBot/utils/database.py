@@ -61,6 +61,14 @@ class Database:
         books = list(cur)
         cur.close()
         return books
+    
+    def get_authors(self) -> list:
+        """Get the authors"""
+        cur = self._connection.cursor()
+        cur.execute(Query.GET_AUTHORS)
+        authors = list(cur)
+        cur.close()
+        return authors
 
     def get_users(self) -> list:
         """Get the users in database."""

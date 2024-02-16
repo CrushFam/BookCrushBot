@@ -1,20 +1,25 @@
 """Miscellaneous functions."""
 
+from datetime import date
+from datetime import time as ttime
 import logging
+import random, string
+
+from bs4 import BeautifulSoup
+import BookCrushClubBot
 
 import requests
+from telegram import Update
 from telegram.error import TelegramError
 from telegram.ext import CallbackContext
 
 from BookCrushClubBot.constants import Literal, Message
-
 
 def _parse_doc(doc):
     """Return parsed (name, author)."""
     title = doc["title"][: Literal.MAX_BOOK_NAME]
     author = ", ".join(set(doc.get("author_name", ())))[: Literal.MAX_AUTHOR_NAME]
     return (title, author)
-
 
 async def broadcast_pulse(context: CallbackContext):
     """Broadcast the message to one user."""
@@ -68,3 +73,48 @@ def search_book(name: str, author: str):
         return []
     else:
         return res
+
+async def schedule_jobs (update: Update, context: CallbackContext):
+    if(update.message.chat.id == 15024063):
+        context.job_queue.run_daily(callback=send_random_quote, time = ttime(hour=12, minute=30, second=0, microsecond=0), chat_id=Literal.ADMINS_CHAT_ID, name = "send_random_quote")
+        await update.message.reply_text("Scheduled random quote daily at 6pm.") 
+
+async def send_random_quote (context: CallbackContext):
+    database = context.bot_data["database"]
+    authors = database.get_authors()
+    authors = [x[0] for x in authors]
+    print(authors)
+    msg = random.choice(authors)
+    url = "http://www.goodreads.com/quotes/search?utf8=%E2%9C%93&q=" + msg
+    req = requests.get(url)
+    soup = BeautifulSoup(req.content)
+    
+    #get quotes from page
+    div_quotes = soup("div", attrs={"class":"quoteText"}) #soup("div") == soup.find_all("div")
+    quotes = ''
+    for q in div_quotes:
+        author = ""
+        # If no author, then skip
+        try:
+            author = q.find("span").get_text().strip() + " " + "<b>" + q.find("a").get_text() + "</b>\n"
+            #print(q.find("span").get_text())
+        except:
+            continue
+        quote = ""
+        # turn multiline quotes/poems into a single string
+        for i in range(len(q.contents)):
+            #find returns
+            line = q.contents[i].encode("ascii", errors="ignore").decode("utf-8")
+            #print("line ", line)
+            if (line[0] == "<"): # is tag, ignore characters that aren't part of quote 
+                break
+            else:
+                quote += line
+
+        quote = q.contents[0].encode("ascii", errors="ignore").decode("utf-8")
+        quote = "\"" + quote.strip() + "\""
+        quotes += "<blockquote><i>" + quote + "</i></blockquote>" + '\n\n' + '- ' + author.strip() + "#"
+    quotes_to_return = filter(lambda x: x in string.printable, quotes)
+    quotes = "".join(quotes_to_return).split("#")
+    finalquote = random.choice(quotes) + '\n\n' + '#Quotes'
+    await context.bot.send_message(Literal.ADMINS_CHAT_ID, finalquote)

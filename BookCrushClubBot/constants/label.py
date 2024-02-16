@@ -11,3 +11,5 @@ class Label:
     SUGGEST = "Suggest"
 
     REMOVE = "Remove"
+
+    MOVE_OT = "Continue in OT Group ↗️"
