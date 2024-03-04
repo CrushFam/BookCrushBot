@@ -211,7 +211,9 @@ async def sendpost(update: Update, querry):
         pattern = re.compile(r"\.html\('([^']*(?:\\.[^']*)*)'\)")
         inht = pattern.search(blurb).group(1)
         #print("after processing :", inht)
+        inht = inht.replace('<br>','\n') # to add linebreaks to separate into paragraphs
         desc = BeautifulSoup(inht,'lxml').text
+        desc = desc[len('Description'):] # strip leading "Description" string
         star = "⭐"*round(float(sr))
         ser=""
         if seriesname != 'N/A':
@@ -304,7 +306,7 @@ async def haikudetect(update: Update, context: CallbackContext) -> None:
             await update.message.set_reaction("🔥") 
         if not update.message.text: return
         #reduce frequency of haiku detection
-        if update.message.id % 3 != 0: return
+        if update.message.id % 4 != 0: return
         message = update.message.text
         words = message.split()
         # Checking words count
@@ -381,12 +383,17 @@ async def get_random_quote (update: Update, context: CallbackContext):
     quotes_to_return = filter(lambda x: x in string.printable, quotes)
     quotes = "".join(quotes_to_return).split("#")
     finalquote = random.choice(quotes) + '\n\n' + '#Quotes'
+    if (finalquote.strip() == "#Quotes"): return
     await update.message.reply_text(finalquote)
 
 async def forward_offtopic (update: Update, context: CallbackContext):
-    if (not update.message.reply_to_message or not update.message.reply_to_message.text):
+    if (not update.message.reply_to_message):
         return
-    fwd_msg = await context.bot.send_message(Literal.OT_CHAT_ID,f"<a href=\"tg://user?id={update.message.reply_to_message.from_user.id}\">{update.message.reply_to_message.from_user.full_name}</a> said in BookCrushClub:\n\n<blockquote><i>" + update.message.reply_to_message.text + "</i></blockquote>\n\nIt was moved here.\n👇 Please continue below 👇")
+    if (not update.message.reply_to_message.text):
+        text = "<b>Image/GIF/Sticker. Anyway IDC, it's offtopic 🥱</b>"
+    else:
+        text = update.message.reply_to_message.text
+    fwd_msg = await context.bot.send_message(Literal.OT_CHAT_ID,f"<a href=\"tg://user?id={update.message.reply_to_message.from_user.id}\">{update.message.reply_to_message.from_user.full_name}</a> said in BookCrushClub:\n\n<blockquote><i>" + text + "</i></blockquote>\n\nIt was moved here.\n👇 Please continue below 👇")
     ot_chat_id = str(Literal.OT_CHAT_ID)
     ot_chat_id = ot_chat_id.split("-100",1)
     print(ot_chat_id[1])

@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import BookCrushClubBot
 
 import requests
-from telegram import Update
+from telegram import Update, ChatJoinRequest
 from telegram.error import TelegramError
 from telegram.ext import CallbackContext
 
@@ -76,7 +76,7 @@ def search_book(name: str, author: str):
 
 async def schedule_jobs (update: Update, context: CallbackContext):
     if(update.message.chat.id == 15024063):
-        context.job_queue.run_daily(callback=send_random_quote, time = ttime(hour=12, minute=30, second=0, microsecond=0), chat_id=Literal.ADMINS_CHAT_ID, name = "send_random_quote")
+        context.job_queue.run_daily(callback=send_random_quote, time = ttime(hour=12, minute=30, second=0, microsecond=0), chat_id=Literal.BOOKCRUSHCLUB_CHAT_ID, name = "send_random_quote")
         await update.message.reply_text("Scheduled random quote daily at 6pm.") 
 
 async def send_random_quote (context: CallbackContext):
@@ -116,5 +116,11 @@ async def send_random_quote (context: CallbackContext):
         quotes += "<blockquote><i>" + quote + "</i></blockquote>" + '\n\n' + '- ' + author.strip() + "#"
     quotes_to_return = filter(lambda x: x in string.printable, quotes)
     quotes = "".join(quotes_to_return).split("#")
+    if not quotes.isalnum(): return
     finalquote = random.choice(quotes) + '\n\n' + '#Quotes'
-    await context.bot.send_message(Literal.ADMINS_CHAT_ID, finalquote)
+    await context.bot.send_message(Literal.BOOKCRUSHCLUB_CHAT_ID, finalquote)
+
+async def decline(update: Update, context: CallbackContext):
+    print("test")
+    await update.chat_join_request.decline()
+    

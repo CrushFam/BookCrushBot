@@ -1,7 +1,7 @@
 """Handlers for updates."""
 
 from telegram.ext import (CallbackQueryHandler, CommandHandler, MessageHandler,
-                          filters)
+                          filters, ChatJoinRequestHandler)
 
 from BookCrushClubBot.base.callback_query import (action_remove,
                                                   action_suggest,
@@ -12,7 +12,7 @@ from BookCrushClubBot.base.command import (books, broadcast, clear, get, help_,
                                            list_, set_, start, mkposts, getbookinfo, poll, sync_poll, days_since, haikudetect, get_random_quote, forward_offtopic)
 from BookCrushClubBot.base.message import fallback, handle_text
 from BookCrushClubBot.constants import CallbackData, Literal
-from BookCrushClubBot.utils.misc import schedule_jobs
+from BookCrushClubBot.utils.misc import schedule_jobs, decline
 
 
 def _cbq(callback, pattern):
@@ -26,6 +26,8 @@ def _cmd(callback, command, filters):
 def _msg(callback, filters):
     return {"callback": callback, "filters": filters}
 
+def _cjr(callback, chat_id):
+    return {"callback": callback, "chat_id": chat_id}
 
 handlers = {
     CallbackQueryHandler: [
@@ -58,5 +60,8 @@ handlers = {
         _msg(haikudetect, filters.Text() & (filters.Chat(Literal.BOOKCRUSHCLUB_CHAT_ID) | filters.Chat(Literal.ADMINS_CHAT_ID))),
         _msg(handle_text, filters.ChatType.PRIVATE & ~filters.COMMAND),
         _msg(fallback, filters.ChatType.PRIVATE),
+    ],
+    ChatJoinRequestHandler: [
+        _cjr(decline, Literal.BOOKCRUSHCLUB_CHAT_ID),
     ],
 }
